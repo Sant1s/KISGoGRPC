@@ -26,3 +26,4 @@ go.work.sum
 .data_pgadmin
 .postgresql
 .redisdata
+.vscode
