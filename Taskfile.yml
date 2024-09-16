@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  build-container:
+    cmds:
+      - docker build ./ -t kis-blog-backend
+    silent: false
+
+  run-container:
+    cmds:
+      - docker run -p 5000:5000 -it kis-blog-backend
+    silent: false
