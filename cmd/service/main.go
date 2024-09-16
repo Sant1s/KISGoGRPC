@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"strconv"
+	"syscall"
 	"time"
 
+	"github.com/Sant1s/blogBack/internal/application"
 	"github.com/Sant1s/blogBack/internal/config"
 )
 
@@ -27,10 +31,21 @@ func main() {
 	}
 	defer currentLogFile.Close()
 
-	//todo: Дописать лоигку старта приложения
+	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	tokenTTL, _ := time.ParseDuration(os.Getenv("TOKEN_TTL"))
+	application := application.New(logger, port, os.Getenv("STORAGE_PATH"), tokenTTL)
 
-	//todo: Дописать gracefull shutdown
+	go application.GRPCSrv.MustRun()
 
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	s := <-stop
+	logger.Info("stopping service", slog.String("signal", s.String()))
+
+	application.GRPCSrv.Stop()
+
+	logger.Info("service stopped")
 }
 
 func setupLogger(env string) (*slog.Logger, error) {

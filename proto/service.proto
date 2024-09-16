@@ -2,42 +2,18 @@ syntax = "proto3";
 
 package kis.blog.backend;
 
-import "http.proto";
-
 option go_package = "github.com/Sant1s/blogBack/blogService;blogService";
 
 service BlogPostService {
-  rpc ListBlogPosts(ListBlogPostsRequest) returns (ListBlogPostsResponse) {
-    option (google.api.http) = {
-      get : "/v1alpha1/BlogPosts"
-    };
-  }
+  rpc ListBlogPosts(ListBlogPostsRequest) returns (ListBlogPostsResponse);
 
-  rpc GetBlogPost(GetBlogPostRequest) returns (BlogPost) {
-    option (google.api.http) = {
-      get : "/v1alpha1/{name=BlogPosts/*}"
-    };
-  }
+  rpc GetBlogPost(GetBlogPostRequest) returns (BlogPost);
 
-  rpc CreateBlogPost(CreateBlogPostRequest) returns (BlogPost) {
-    option (google.api.http) = {
-      post : "/v1alpha1/BlogPosts"
-      body : "BlogPost"
-    };
-  }
+  rpc CreateBlogPost(CreateBlogPostRequest) returns (BlogPost);
 
-  rpc UpdateBlogPost(UpdateBlogPostRequest) returns (BlogPost) {
-    option (google.api.http) = {
-      patch : "/v1alpha1/{BlogPost.name=BlogPosts/*}"
-      body : "BlogPost"
-    };
-  }
+  rpc UpdateBlogPost(UpdateBlogPostRequest) returns (BlogPost);
 
-  rpc DeleteBlogPost(DeleteBlogPostRequest) returns (Empty) {
-    option (google.api.http) = {
-      delete : "/v1alpha1/{name=BlogPosts/*}"
-    };
-  }
+  rpc DeleteBlogPost(DeleteBlogPostRequest) returns (Empty);
 }
 
 message Empty {}

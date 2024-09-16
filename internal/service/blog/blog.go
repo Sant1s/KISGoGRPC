@@ -1,11 +1,35 @@
-package service
+package blog
 
-type BlogService interface {
+import (
+	"log/slog"
+	"time"
+)
+
+type BlogService struct {
+	log       *slog.Logger
+	blogPosts BlogPosts
+	blogLikes BlogLikes
+	tokenTTL  time.Duration
 }
 
-type Blog struct {
+type BlogPosts interface {
+	// todo: дописать (data-layer)
 }
 
-func NewBlogService() *Blog {
-	return &Blog{}
+type BlogLikes interface {
+	// todo: дописать (data-layer)
+}
+
+func New(
+	log *slog.Logger,
+	blogPosts BlogPosts,
+	blogLikes BlogLikes,
+	tokenTTL time.Duration,
+) *BlogService {
+	return &BlogService{
+		log:       log,
+		blogPosts: blogPosts,
+		blogLikes: blogLikes,
+		tokenTTL:  tokenTTL,
+	}
 }
