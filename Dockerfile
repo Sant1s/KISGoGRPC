@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY . .
 RUN go mod download
-RUN go build -o main cmd/moderation/main.go
+RUN go build -o main cmd/service/main.go
 
 FROM ubuntu:latest
 
