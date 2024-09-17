@@ -1,10 +1,12 @@
 package grpcapplication
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
 
+	middleware "github.com/Sant1s/blogBack/internal/grpc"
 	bloggrpc "github.com/Sant1s/blogBack/internal/grpc/blog"
 	"google.golang.org/grpc"
 )
@@ -15,12 +17,24 @@ type App struct {
 	port       int
 }
 
+type Auth interface {
+	ValidateUser(ctx context.Context, credentials string) error
+}
+
 func New(
 	log *slog.Logger,
 	blogService bloggrpc.Blog,
 	port int,
+	auth Auth,
 ) *App {
-	gRPCServer := grpc.NewServer()
+	middlewares := middleware.New(log, auth)
+
+	gRPCServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			middlewares.LoggingUnaryInterceptor,
+			middlewares.AuthUnaryInterceptor,
+		),
+	)
 
 	bloggrpc.Register(gRPCServer, blogService)
 

@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -20,20 +19,30 @@ var (
 	currentLogFileName string
 )
 
-func init() {
-	config.MustLoad()
-}
-
 func main() {
-	logger, err := setupLogger(os.Getenv("ENV"))
+	cfg := config.MustLoad()
+
+	logger, err := setupLogger(cfg)
 	if err != nil {
 		panic(err)
 	}
 	defer currentLogFile.Close()
 
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	tokenTTL, _ := time.ParseDuration(os.Getenv("TOKEN_TTL"))
-	application := application.New(logger, port, os.Getenv("STORAGE_PATH"), tokenTTL)
+	storagePath := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s",
+		cfg.Database.Postgres.User,
+		cfg.Database.Postgres.Password,
+		cfg.Database.Postgres.Host,
+		cfg.Database.Postgres.Port,
+		cfg.Database.Postgres.Db,
+	)
+	cacheStoragePath := map[string]any{
+		"addres":    fmt.Sprintf("%s:%d", cfg.Database.Redis.Host, cfg.Database.Redis.Port),
+		"password":  cfg.Database.Redis.Password,
+		"db_number": cfg.Database.Redis.DbNumer,
+	}
+
+	application := application.New(logger, cfg.Server.Port, storagePath, cacheStoragePath)
 
 	go application.GRPCSrv.MustRun()
 
@@ -48,26 +57,26 @@ func main() {
 	logger.Info("service stopped")
 }
 
-func setupLogger(env string) (*slog.Logger, error) {
-	if env == "local" {
+func setupLogger(cfg *config.Config) (*slog.Logger, error) {
+	if cfg.Server.Env == "local" {
 		return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelInfo,
 		})), nil
 	}
 
-	if err := updateLogFile(os.Getenv("LOG_DIR")); err != nil {
+	if err := updateLogFile(cfg.Server.LogDir); err != nil {
 		return nil, err
 	}
 
 	go func() {
 		for range time.Tick(24 * time.Hour) {
-			if err := updateLogFile(os.Getenv("LOG_DIR")); err != nil {
+			if err := updateLogFile(cfg.Server.LogDir); err != nil {
 				fmt.Printf("Ошибка при обновлении файла логов: %v\n", err)
 			}
 		}
 	}()
 
-	switch env {
+	switch cfg.Server.Env {
 	case "production":
 		return slog.New(slog.NewJSONHandler(currentLogFile, &slog.HandlerOptions{
 			Level: slog.LevelInfo,

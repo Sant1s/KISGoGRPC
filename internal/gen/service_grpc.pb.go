@@ -19,253 +19,215 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BlogPostService_ListBlogPosts_FullMethodName  = "/kis.blog.backend.BlogPostService/ListBlogPosts"
-	BlogPostService_GetBlogPost_FullMethodName    = "/kis.blog.backend.BlogPostService/GetBlogPost"
-	BlogPostService_CreateBlogPost_FullMethodName = "/kis.blog.backend.BlogPostService/CreateBlogPost"
-	BlogPostService_UpdateBlogPost_FullMethodName = "/kis.blog.backend.BlogPostService/UpdateBlogPost"
-	BlogPostService_DeleteBlogPost_FullMethodName = "/kis.blog.backend.BlogPostService/DeleteBlogPost"
+	BlogService_ListPosts_FullMethodName  = "/kis.blog.backend.BlogService/ListPosts"
+	BlogService_CreatePost_FullMethodName = "/kis.blog.backend.BlogService/CreatePost"
+	BlogService_UpdatePost_FullMethodName = "/kis.blog.backend.BlogService/UpdatePost"
+	BlogService_DeletePost_FullMethodName = "/kis.blog.backend.BlogService/DeletePost"
 )
 
-// BlogPostServiceClient is the client API for BlogPostService service.
+// BlogServiceClient is the client API for BlogService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BlogPostServiceClient interface {
-	ListBlogPosts(ctx context.Context, in *ListBlogPostsRequest, opts ...grpc.CallOption) (*ListBlogPostsResponse, error)
-	GetBlogPost(ctx context.Context, in *GetBlogPostRequest, opts ...grpc.CallOption) (*BlogPost, error)
-	CreateBlogPost(ctx context.Context, in *CreateBlogPostRequest, opts ...grpc.CallOption) (*BlogPost, error)
-	UpdateBlogPost(ctx context.Context, in *UpdateBlogPostRequest, opts ...grpc.CallOption) (*BlogPost, error)
-	DeleteBlogPost(ctx context.Context, in *DeleteBlogPostRequest, opts ...grpc.CallOption) (*Empty, error)
+type BlogServiceClient interface {
+	ListPosts(ctx context.Context, in *ListPostsRequest, opts ...grpc.CallOption) (*ListPostsResponse, error)
+	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*Response, error)
+	UpdatePost(ctx context.Context, in *UpdatePostRequest, opts ...grpc.CallOption) (*Response, error)
+	DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
-type blogPostServiceClient struct {
+type blogServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewBlogPostServiceClient(cc grpc.ClientConnInterface) BlogPostServiceClient {
-	return &blogPostServiceClient{cc}
+func NewBlogServiceClient(cc grpc.ClientConnInterface) BlogServiceClient {
+	return &blogServiceClient{cc}
 }
 
-func (c *blogPostServiceClient) ListBlogPosts(ctx context.Context, in *ListBlogPostsRequest, opts ...grpc.CallOption) (*ListBlogPostsResponse, error) {
+func (c *blogServiceClient) ListPosts(ctx context.Context, in *ListPostsRequest, opts ...grpc.CallOption) (*ListPostsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBlogPostsResponse)
-	err := c.cc.Invoke(ctx, BlogPostService_ListBlogPosts_FullMethodName, in, out, cOpts...)
+	out := new(ListPostsResponse)
+	err := c.cc.Invoke(ctx, BlogService_ListPosts_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *blogPostServiceClient) GetBlogPost(ctx context.Context, in *GetBlogPostRequest, opts ...grpc.CallOption) (*BlogPost, error) {
+func (c *blogServiceClient) CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BlogPost)
-	err := c.cc.Invoke(ctx, BlogPostService_GetBlogPost_FullMethodName, in, out, cOpts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_CreatePost_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *blogPostServiceClient) CreateBlogPost(ctx context.Context, in *CreateBlogPostRequest, opts ...grpc.CallOption) (*BlogPost, error) {
+func (c *blogServiceClient) UpdatePost(ctx context.Context, in *UpdatePostRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BlogPost)
-	err := c.cc.Invoke(ctx, BlogPostService_CreateBlogPost_FullMethodName, in, out, cOpts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_UpdatePost_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *blogPostServiceClient) UpdateBlogPost(ctx context.Context, in *UpdateBlogPostRequest, opts ...grpc.CallOption) (*BlogPost, error) {
+func (c *blogServiceClient) DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BlogPost)
-	err := c.cc.Invoke(ctx, BlogPostService_UpdateBlogPost_FullMethodName, in, out, cOpts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_DeletePost_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *blogPostServiceClient) DeleteBlogPost(ctx context.Context, in *DeleteBlogPostRequest, opts ...grpc.CallOption) (*Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, BlogPostService_DeleteBlogPost_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// BlogPostServiceServer is the server API for BlogPostService service.
-// All implementations must embed UnimplementedBlogPostServiceServer
+// BlogServiceServer is the server API for BlogService service.
+// All implementations must embed UnimplementedBlogServiceServer
 // for forward compatibility.
-type BlogPostServiceServer interface {
-	ListBlogPosts(context.Context, *ListBlogPostsRequest) (*ListBlogPostsResponse, error)
-	GetBlogPost(context.Context, *GetBlogPostRequest) (*BlogPost, error)
-	CreateBlogPost(context.Context, *CreateBlogPostRequest) (*BlogPost, error)
-	UpdateBlogPost(context.Context, *UpdateBlogPostRequest) (*BlogPost, error)
-	DeleteBlogPost(context.Context, *DeleteBlogPostRequest) (*Empty, error)
-	mustEmbedUnimplementedBlogPostServiceServer()
+type BlogServiceServer interface {
+	ListPosts(context.Context, *ListPostsRequest) (*ListPostsResponse, error)
+	CreatePost(context.Context, *CreatePostRequest) (*Response, error)
+	UpdatePost(context.Context, *UpdatePostRequest) (*Response, error)
+	DeletePost(context.Context, *DeletePostRequest) (*Response, error)
+	mustEmbedUnimplementedBlogServiceServer()
 }
 
-// UnimplementedBlogPostServiceServer must be embedded to have
+// UnimplementedBlogServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedBlogPostServiceServer struct{}
+type UnimplementedBlogServiceServer struct{}
 
-func (UnimplementedBlogPostServiceServer) ListBlogPosts(context.Context, *ListBlogPostsRequest) (*ListBlogPostsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListBlogPosts not implemented")
+func (UnimplementedBlogServiceServer) ListPosts(context.Context, *ListPostsRequest) (*ListPostsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPosts not implemented")
 }
-func (UnimplementedBlogPostServiceServer) GetBlogPost(context.Context, *GetBlogPostRequest) (*BlogPost, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBlogPost not implemented")
+func (UnimplementedBlogServiceServer) CreatePost(context.Context, *CreatePostRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
-func (UnimplementedBlogPostServiceServer) CreateBlogPost(context.Context, *CreateBlogPostRequest) (*BlogPost, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateBlogPost not implemented")
+func (UnimplementedBlogServiceServer) UpdatePost(context.Context, *UpdatePostRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePost not implemented")
 }
-func (UnimplementedBlogPostServiceServer) UpdateBlogPost(context.Context, *UpdateBlogPostRequest) (*BlogPost, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateBlogPost not implemented")
+func (UnimplementedBlogServiceServer) DeletePost(context.Context, *DeletePostRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePost not implemented")
 }
-func (UnimplementedBlogPostServiceServer) DeleteBlogPost(context.Context, *DeleteBlogPostRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBlogPost not implemented")
-}
-func (UnimplementedBlogPostServiceServer) mustEmbedUnimplementedBlogPostServiceServer() {}
-func (UnimplementedBlogPostServiceServer) testEmbeddedByValue()                         {}
+func (UnimplementedBlogServiceServer) mustEmbedUnimplementedBlogServiceServer() {}
+func (UnimplementedBlogServiceServer) testEmbeddedByValue()                     {}
 
-// UnsafeBlogPostServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BlogPostServiceServer will
+// UnsafeBlogServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BlogServiceServer will
 // result in compilation errors.
-type UnsafeBlogPostServiceServer interface {
-	mustEmbedUnimplementedBlogPostServiceServer()
+type UnsafeBlogServiceServer interface {
+	mustEmbedUnimplementedBlogServiceServer()
 }
 
-func RegisterBlogPostServiceServer(s grpc.ServiceRegistrar, srv BlogPostServiceServer) {
-	// If the following call pancis, it indicates UnimplementedBlogPostServiceServer was
+func RegisterBlogServiceServer(s grpc.ServiceRegistrar, srv BlogServiceServer) {
+	// If the following call pancis, it indicates UnimplementedBlogServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&BlogPostService_ServiceDesc, srv)
+	s.RegisterService(&BlogService_ServiceDesc, srv)
 }
 
-func _BlogPostService_ListBlogPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListBlogPostsRequest)
+func _BlogService_ListPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPostsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BlogPostServiceServer).ListBlogPosts(ctx, in)
+		return srv.(BlogServiceServer).ListPosts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BlogPostService_ListBlogPosts_FullMethodName,
+		FullMethod: BlogService_ListPosts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlogPostServiceServer).ListBlogPosts(ctx, req.(*ListBlogPostsRequest))
+		return srv.(BlogServiceServer).ListPosts(ctx, req.(*ListPostsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BlogPostService_GetBlogPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetBlogPostRequest)
+func _BlogService_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePostRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BlogPostServiceServer).GetBlogPost(ctx, in)
+		return srv.(BlogServiceServer).CreatePost(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BlogPostService_GetBlogPost_FullMethodName,
+		FullMethod: BlogService_CreatePost_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlogPostServiceServer).GetBlogPost(ctx, req.(*GetBlogPostRequest))
+		return srv.(BlogServiceServer).CreatePost(ctx, req.(*CreatePostRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BlogPostService_CreateBlogPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateBlogPostRequest)
+func _BlogService_UpdatePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePostRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BlogPostServiceServer).CreateBlogPost(ctx, in)
+		return srv.(BlogServiceServer).UpdatePost(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BlogPostService_CreateBlogPost_FullMethodName,
+		FullMethod: BlogService_UpdatePost_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlogPostServiceServer).CreateBlogPost(ctx, req.(*CreateBlogPostRequest))
+		return srv.(BlogServiceServer).UpdatePost(ctx, req.(*UpdatePostRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BlogPostService_UpdateBlogPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateBlogPostRequest)
+func _BlogService_DeletePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePostRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BlogPostServiceServer).UpdateBlogPost(ctx, in)
+		return srv.(BlogServiceServer).DeletePost(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BlogPostService_UpdateBlogPost_FullMethodName,
+		FullMethod: BlogService_DeletePost_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlogPostServiceServer).UpdateBlogPost(ctx, req.(*UpdateBlogPostRequest))
+		return srv.(BlogServiceServer).DeletePost(ctx, req.(*DeletePostRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BlogPostService_DeleteBlogPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteBlogPostRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BlogPostServiceServer).DeleteBlogPost(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BlogPostService_DeleteBlogPost_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlogPostServiceServer).DeleteBlogPost(ctx, req.(*DeleteBlogPostRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// BlogPostService_ServiceDesc is the grpc.ServiceDesc for BlogPostService service.
+// BlogService_ServiceDesc is the grpc.ServiceDesc for BlogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var BlogPostService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "kis.blog.backend.BlogPostService",
-	HandlerType: (*BlogPostServiceServer)(nil),
+var BlogService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "kis.blog.backend.BlogService",
+	HandlerType: (*BlogServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListBlogPosts",
-			Handler:    _BlogPostService_ListBlogPosts_Handler,
+			MethodName: "ListPosts",
+			Handler:    _BlogService_ListPosts_Handler,
 		},
 		{
-			MethodName: "GetBlogPost",
-			Handler:    _BlogPostService_GetBlogPost_Handler,
+			MethodName: "CreatePost",
+			Handler:    _BlogService_CreatePost_Handler,
 		},
 		{
-			MethodName: "CreateBlogPost",
-			Handler:    _BlogPostService_CreateBlogPost_Handler,
+			MethodName: "UpdatePost",
+			Handler:    _BlogService_UpdatePost_Handler,
 		},
 		{
-			MethodName: "UpdateBlogPost",
-			Handler:    _BlogPostService_UpdateBlogPost_Handler,
-		},
-		{
-			MethodName: "DeleteBlogPost",
-			Handler:    _BlogPostService_DeleteBlogPost_Handler,
+			MethodName: "DeletePost",
+			Handler:    _BlogService_DeletePost_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

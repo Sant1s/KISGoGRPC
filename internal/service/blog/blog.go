@@ -2,34 +2,32 @@ package blog
 
 import (
 	"log/slog"
-	"time"
 )
 
 type BlogService struct {
 	log       *slog.Logger
 	blogPosts BlogPosts
 	blogLikes BlogLikes
-	tokenTTL  time.Duration
 }
 
 type BlogPosts interface {
-	// todo: дописать (data-layer)
+	// todo: дописать (data-layer postgres)
 }
 
 type BlogLikes interface {
-	// todo: дописать (data-layer)
+	// todo: дописать (data-layer redis)
 }
 
 func New(
 	log *slog.Logger,
 	blogPosts BlogPosts,
 	blogLikes BlogLikes,
-	tokenTTL time.Duration,
 ) *BlogService {
 	return &BlogService{
 		log:       log,
 		blogPosts: blogPosts,
 		blogLikes: blogLikes,
-		tokenTTL:  tokenTTL,
 	}
 }
+
+// todo: дописать функции, сервисного уровня

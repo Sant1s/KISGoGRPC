@@ -3,7 +3,7 @@ version: "3"
 tasks:
   run-local:
     cmds:
-      - go run cmd/service/main.go --config_path=./.env
+      - go run cmd/service/main.go --config_path=./config.yaml
 
   run-migrations:
     cmds:
@@ -21,4 +21,4 @@ tasks:
 
   generate:
     cmds:
-      - protoc -I proto proto/*.proto --go_out=./internal/gen/ --go_opt=paths=source_relative --go-grpc_out=./internal/gen/ --go-grpc_opt=paths=source_relative
+      - protoc -I proto proto/service.proto --go_out=./internal/gen/ --go_opt=paths=source_relative --go-grpc_out=./internal/gen/ --go-grpc_opt=paths=source_relative
