@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
@@ -15,10 +17,11 @@ import (
 var (
 	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
 	errInvalidUser     = status.Errorf(codes.Unauthenticated, "invalid token")
+	errInvalidCreds    = status.Errorf(codes.InvalidArgument, "invalid user creds")
 )
 
 type Auth interface {
-	ValidateUser(ctx context.Context, credentials string) error
+	ValidateUser(ctx context.Context, nickname, password_hash string) error
 }
 
 type Interceptors struct {
@@ -66,9 +69,15 @@ func (l *Interceptors) AuthUnaryInterceptor(
 		return nil, errMissingMetadata
 	}
 
-	dbCtx, cancel := context.WithTimeout(ctx, time.Millisecond*100)
+	dbCtx, cancel := context.WithTimeout(ctx, time.Second*100)
 	defer cancel()
-	if err := l.auth.ValidateUser(dbCtx, authCreds[0]); err != nil {
+
+	nickname, pass_hash, err := l.parseCreds(authCreds[0])
+	if err != nil {
+		return nil, errInvalidCreds
+	}
+
+	if err := l.auth.ValidateUser(dbCtx, nickname, pass_hash); err != nil {
 		return nil, errInvalidUser
 	}
 
@@ -77,4 +86,18 @@ func (l *Interceptors) AuthUnaryInterceptor(
 		l.l.Info("RPC failed with error ", slog.String("err", err.Error()))
 	}
 	return m, err
+}
+
+func (l *Interceptors) parseCreds(creds string) (string, string, error) {
+	decodeCreds := strings.Split(creds, " ")
+
+	decodedBytes, err := base64.StdEncoding.DecodeString(decodeCreds[1])
+	if err != nil {
+		l.l.Error(fmt.Sprintf("Error decoding base64 creds: %v", err))
+		return "", "", err
+	}
+
+	decodedStr := string(decodedBytes)
+	splitCreds := strings.Split(decodedStr, ":")
+	return splitCreds[0], splitCreds[1], nil
 }

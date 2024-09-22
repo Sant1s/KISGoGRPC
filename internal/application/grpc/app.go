@@ -18,7 +18,7 @@ type App struct {
 }
 
 type Auth interface {
-	ValidateUser(ctx context.Context, credentials string) error
+	ValidateUser(ctx context.Context, nickname, password_hash string) error
 }
 
 func New(

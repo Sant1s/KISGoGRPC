@@ -12,12 +12,18 @@ import (
 
 	"github.com/Sant1s/blogBack/internal/application"
 	"github.com/Sant1s/blogBack/internal/config"
+	metrics "github.com/Sant1s/blogBack/internal/metrics/prometeus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
 	currentLogFile     *os.File
 	currentLogFileName string
 )
+
+func init() {
+	prometheus.MustRegister(metrics.RequestCounter)
+}
 
 func main() {
 	cfg := config.MustLoad()

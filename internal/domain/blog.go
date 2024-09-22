@@ -3,13 +3,13 @@ package domain
 import "time"
 
 type Post struct {
-	Id           string    `json:"id"`
-	Author       string    `json:"author"`
-	Body         string    `json:"body"`
-	CreateTime   time.Time `json:"create_time"`
-	CommentCount int64     `json:"comment_count"`
-	LikesCount   int64     `json:"likes_count"`
-	LikedByUser  bool      `json:"liked"`
-	ParentId     string    `json:"parent_id"`
+	Id           int64     `db:"id"`
+	Author       string    `db:"nickname"`
+	Body         string    `db:"data"`
+	CreateTime   time.Time `db:"created_at"`
+	CommentCount int64     `db:"comments_count"`
+	LikesCount   int64     `db:"likes_count"`
+	LikedByUser  bool      `db:"liked"`
 }
+
 type Posts []Post
