@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 
 	"github.com/Sant1s/blogBack/internal/domain"
@@ -41,11 +40,15 @@ func New(logger *slog.Logger, storagePath string) (*Postgres, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &Postgres{db: db}, nil
+	return &Postgres{
+		db:     db,
+		logger: logger,
+	}, nil
 }
 
 func (p *Postgres) ValidateUser(ctx context.Context, nickname, password_hash string) error {
 	const op = "storage.postgres.ValidateUser"
+	
 	stmt, err := p.db.Prepare("select id from users where nickname=$1 and password_hash=$2")
 
 	if err != nil {
@@ -68,13 +71,57 @@ func (p *Postgres) ValidateUser(ctx context.Context, nickname, password_hash str
 
 // CreatePost implements blog.BlogPosts.
 func (p *Postgres) CreatePost(ctx context.Context, post *domain.Post) error {
+	const op = "postgres.CreatePost"
 
-	panic("unimplemented")
+	// Get author uuid
+	var authorUuid string
+	queryAuthor := `SELECT id FROM users WHERE nickname=$1;`
+
+	p.logger.Info(fmt.Sprintf("executing query: %s", queryAuthor), slog.String("op", op))
+
+	res := p.db.QueryRowContext(ctx, queryAuthor, post.Author)
+
+	err := res.Scan(&authorUuid)
+	if err != nil {
+		p.logger.Error(fmt.Sprintf("failed to execute query: %s", queryAuthor), slog.String("op", op), slog.Any("err", err))
+		return err
+	}
+
+	// add new post
+	query := `INSERT INTO posts (id, author_id, data) VALUES ($1, $2, $3);`
+
+	_, err = p.db.ExecContext(ctx, query, post.Id, authorUuid, post.Body)
+
+	if err != nil {
+		// todo: вот тут еще могут быть какие-то ошибки, но чет пока я не догнал какие
+		p.logger.Error(fmt.Sprintf("failed to execute query: %s", query), slog.String("op", op), slog.Any("err", err))
+		return err
+	}
+	return nil
 }
 
 // DeletePost implements blog.BlogPosts.
 func (p *Postgres) DeletePost(ctx context.Context, post_id int64) error {
-	panic("unimplemented")
+	const op = "postgres.DeletePost"
+
+	query := `DELETE FROM posts WHERE id=$1 RETURNING id;`
+
+	p.logger.Info(fmt.Sprintf("executing query: %s", query), slog.String("op", op))
+
+	res := p.db.QueryRowContext(ctx, query, post_id)
+
+	var postId int64
+	err := res.Scan(&postId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			p.logger.Error(fmt.Sprintf("failed to execute query: %s", query), slog.String("op", op), slog.Any("err", err))
+			return err
+		}
+		p.logger.Error(fmt.Sprintf("failed to execute query: %s", query), slog.String("op", op), slog.Any("err", err))
+		return err
+	}
+
+	return nil
 }
 
 // GetListPosts implements blog.BlogPosts.
@@ -87,10 +134,13 @@ func (p *Postgres) GetListPosts(ctx context.Context, limit int32, offset int32) 
               ORDER BY p.created_at
               LIMIT $1 OFFSET $2;`
 
+	p.logger.Info(fmt.Sprintf("executing query: %s", query), slog.String("op", op))
 	var posts domain.Posts
+
 	err := p.db.Select(&posts, query, limit, offset)
 	if err != nil {
-		log.Fatalln(err)
+		p.logger.Error(fmt.Sprintf("failed to execute query: %s", query), slog.String("op", op), slog.Any("err", err))
+		return domain.Posts{}, err
 	}
 
 	return posts, nil
@@ -98,5 +148,11 @@ func (p *Postgres) GetListPosts(ctx context.Context, limit int32, offset int32) 
 
 // UpdatePost implements blog.BlogPosts.
 func (p *Postgres) UpdatePost(ctx context.Context, updates *domain.Post) (int64, error) {
-	panic("unimplemented")
+	const op = "postgres.UpdatePost"
+
+	// query := `UPDATE posts SET`
+	// if updates.Author != "" {
+	// 	query += ""
+	// }
+	return 0, nil
 }

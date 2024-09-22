@@ -22,18 +22,21 @@ func New(
 ) *App {
 	const op = "application.New"
 
-	pgStorage, err := postgres.New(log, storagePath) // TODO: code data-layer (postgres module)
+	pgStorage, err := postgres.New(log, storagePath)
 	if err != nil {
+		log.Error("error creating persistent storage", slog.String("op", op))
 		panic(fmt.Sprintf("can not connect to postgres: %s", op))
 	}
 
-	redisStorage, err := redis.New(log, cacheStoragePath) // todo: code data-layer (redis modeule)
+	redisStorage, err := redis.New(log, cacheStoragePath)
 	if err != nil {
+		log.Error("error creating cache storage", slog.String("op", op))
 		panic(fmt.Sprintf("can not connect to redis %s", op))
 	}
 
 	blogService := blog.New(log, pgStorage, redisStorage)
 
+	log.Info("application sucsessfuly created", slog.String("op", op))
 	return &App{
 		GRPCSrv: grpcapplication.New(log, blogService, grpcPort, pgStorage),
 	}
