@@ -36,7 +36,7 @@ func New(
 
 	blogService := blog.New(log, pgStorage, redisStorage)
 
-	log.Info("application sucsessfuly created", slog.String("op", op))
+	log.Info("application successfully created", slog.String("op", op))
 	return &App{
 		GRPCSrv: grpcapplication.New(log, blogService, grpcPort, pgStorage),
 	}

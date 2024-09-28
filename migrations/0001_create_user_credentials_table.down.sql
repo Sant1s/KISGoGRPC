@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS users_credentials;
+drop table if exists usersl

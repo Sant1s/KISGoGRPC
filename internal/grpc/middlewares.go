@@ -15,13 +15,13 @@ import (
 )
 
 var (
-	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
-	errInvalidUser     = status.Errorf(codes.Unauthenticated, "invalid token")
-	errInvalidCreds    = status.Errorf(codes.InvalidArgument, "invalid user creds")
+	ErrMissingMetadata    = status.Errorf(codes.InvalidArgument, "missing metadata")
+	ErrInvalidUser        = status.Errorf(codes.Unauthenticated, "invalid token")
+	ErrInvalidCredentials = status.Errorf(codes.InvalidArgument, "invalid user Credentials")
 )
 
 type Auth interface {
-	ValidateUser(ctx context.Context, nickname, password_hash string) error
+	ValidateUser(ctx context.Context, nickname, passwordHash string) error
 }
 
 type Interceptors struct {
@@ -42,11 +42,33 @@ func (l *Interceptors) LoggingUnaryInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
-	fmt.Printf("loggig interceptor on method: %s\n", info.FullMethod)
+	const op = "middleware.LoggingUnaryInterceptor"
+	l.l.Info(
+		"start executing handler",
+		slog.String("op", op),
+		slog.String("handler", info.FullMethod),
+	)
+	start := time.Now()
 	h, err := handler(ctx, request)
+	duration := time.Since(start)
+
 	if err != nil {
+		l.l.Error(
+			"executing handler ended with error",
+			slog.String("op", op),
+			slog.String("handler", info.FullMethod),
+			slog.String("err", err.Error()),
+			slog.String("time", duration.String()),
+		)
 		return nil, err
 	}
+
+	l.l.Error(
+		"executing handler ended successfully",
+		slog.String("op", op),
+		slog.String("handler", info.FullMethod),
+		slog.String("time", duration.String()),
+	)
 
 	return h, nil
 }
@@ -57,47 +79,68 @@ func (l *Interceptors) AuthUnaryInterceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
-	fmt.Printf("auth interceptor on method: %s\n", info.FullMethod)
+	const op = "middleware.AuthUnaryInterceptor"
+	l.l.Info(fmt.Sprintf("auth interceptor on method: %s\n", info.FullMethod), slog.String("op", op))
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errMissingMetadata
+		return nil, ErrMissingMetadata
 	}
 
-	authCreds, ok := md["authorization"]
+	authCredentials, ok := md["authorization"]
 	if !ok {
-		return nil, errMissingMetadata
+		l.l.Error(
+			"authorization header required",
+			slog.String("op", op),
+		)
+		return nil, ErrMissingMetadata
 	}
 
 	dbCtx, cancel := context.WithTimeout(ctx, time.Second*100)
 	defer cancel()
 
-	nickname, pass_hash, err := l.parseCreds(authCreds[0])
+	nickname, passHash, err := l.parseCredentials(authCredentials[0])
 	if err != nil {
-		return nil, errInvalidCreds
+		l.l.Error(
+			"invalid credentials",
+			slog.String("op", op),
+		)
+		return nil, ErrInvalidCredentials
 	}
 
-	if err := l.auth.ValidateUser(dbCtx, nickname, pass_hash); err != nil {
-		return nil, errInvalidUser
+	if err := l.auth.ValidateUser(dbCtx, nickname, passHash); err != nil {
+		l.l.Error(
+			fmt.Sprintf("can not validate user: %s", err.Error()),
+			slog.String("op", op),
+		)
+		return nil, ErrInvalidUser
 	}
 
 	m, err := handler(ctx, request)
 	if err != nil {
-		l.l.Info("RPC failed with error ", slog.String("err", err.Error()))
+		l.l.Info(
+			fmt.Sprintf("rpc failed with error: %s", err.Error()),
+			slog.String("op", op),
+		)
 	}
 	return m, err
 }
 
-func (l *Interceptors) parseCreds(creds string) (string, string, error) {
-	decodeCreds := strings.Split(creds, " ")
+func (l *Interceptors) parseCredentials(Credentials string) (string, string, error) {
+	const op = "middleware.parseCredentials"
+	decodeCredentials := strings.Split(Credentials, " ")
 
-	decodedBytes, err := base64.StdEncoding.DecodeString(decodeCreds[1])
+	decodedBytes, err := base64.StdEncoding.DecodeString(decodeCredentials[1])
 	if err != nil {
-		l.l.Error(fmt.Sprintf("Error decoding base64 creds: %v", err))
+		l.l.Error(
+			fmt.Sprintf("Error decoding base64 Credentials: %v", err),
+			slog.String("op", op),
+		)
 		return "", "", err
 	}
 
 	decodedStr := string(decodedBytes)
-	splitCreds := strings.Split(decodedStr, ":")
-	return splitCreds[0], splitCreds[1], nil
+	splitCredentials := strings.Split(decodedStr, ":")
+
+	return splitCredentials[0], splitCredentials[1], nil
 }

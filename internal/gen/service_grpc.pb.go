@@ -19,10 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BlogService_ListPosts_FullMethodName  = "/kis.blog.backend.BlogService/ListPosts"
-	BlogService_CreatePost_FullMethodName = "/kis.blog.backend.BlogService/CreatePost"
-	BlogService_UpdatePost_FullMethodName = "/kis.blog.backend.BlogService/UpdatePost"
-	BlogService_DeletePost_FullMethodName = "/kis.blog.backend.BlogService/DeletePost"
+	BlogService_ListPosts_FullMethodName      = "/kis.blog.backend.BlogService/ListPosts"
+	BlogService_CreatePost_FullMethodName     = "/kis.blog.backend.BlogService/CreatePost"
+	BlogService_UpdatePost_FullMethodName     = "/kis.blog.backend.BlogService/UpdatePost"
+	BlogService_DeletePost_FullMethodName     = "/kis.blog.backend.BlogService/DeletePost"
+	BlogService_LikePost_FullMethodName       = "/kis.blog.backend.BlogService/LikePost"
+	BlogService_LikeComment_FullMethodName    = "/kis.blog.backend.BlogService/LikeComment"
+	BlogService_ListComments_FullMethodName   = "/kis.blog.backend.BlogService/ListComments"
+	BlogService_CreateComments_FullMethodName = "/kis.blog.backend.BlogService/CreateComments"
+	BlogService_UpdateComments_FullMethodName = "/kis.blog.backend.BlogService/UpdateComments"
+	BlogService_DeleteComment_FullMethodName  = "/kis.blog.backend.BlogService/DeleteComment"
 )
 
 // BlogServiceClient is the client API for BlogService service.
@@ -33,6 +39,12 @@ type BlogServiceClient interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...grpc.CallOption) (*Response, error)
 	UpdatePost(ctx context.Context, in *UpdatePostRequest, opts ...grpc.CallOption) (*Response, error)
 	DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*Response, error)
+	LikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*Response, error)
+	LikeComment(ctx context.Context, in *LikeCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	ListComments(ctx context.Context, in *ListCommentsRequest, opts ...grpc.CallOption) (*ListCommentsResponse, error)
+	CreateComments(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	UpdateComments(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type blogServiceClient struct {
@@ -83,6 +95,66 @@ func (c *blogServiceClient) DeletePost(ctx context.Context, in *DeletePostReques
 	return out, nil
 }
 
+func (c *blogServiceClient) LikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_LikePost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) LikeComment(ctx context.Context, in *LikeCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_LikeComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) ListComments(ctx context.Context, in *ListCommentsRequest, opts ...grpc.CallOption) (*ListCommentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCommentsResponse)
+	err := c.cc.Invoke(ctx, BlogService_ListComments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) CreateComments(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_CreateComments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) UpdateComments(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_UpdateComments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_DeleteComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BlogServiceServer is the server API for BlogService service.
 // All implementations must embed UnimplementedBlogServiceServer
 // for forward compatibility.
@@ -91,6 +163,12 @@ type BlogServiceServer interface {
 	CreatePost(context.Context, *CreatePostRequest) (*Response, error)
 	UpdatePost(context.Context, *UpdatePostRequest) (*Response, error)
 	DeletePost(context.Context, *DeletePostRequest) (*Response, error)
+	LikePost(context.Context, *LikePostRequest) (*Response, error)
+	LikeComment(context.Context, *LikeCommentRequest) (*Response, error)
+	ListComments(context.Context, *ListCommentsRequest) (*ListCommentsResponse, error)
+	CreateComments(context.Context, *CreateCommentRequest) (*Response, error)
+	UpdateComments(context.Context, *UpdateCommentRequest) (*Response, error)
+	DeleteComment(context.Context, *DeleteCommentRequest) (*Response, error)
 	mustEmbedUnimplementedBlogServiceServer()
 }
 
@@ -112,6 +190,24 @@ func (UnimplementedBlogServiceServer) UpdatePost(context.Context, *UpdatePostReq
 }
 func (UnimplementedBlogServiceServer) DeletePost(context.Context, *DeletePostRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePost not implemented")
+}
+func (UnimplementedBlogServiceServer) LikePost(context.Context, *LikePostRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LikePost not implemented")
+}
+func (UnimplementedBlogServiceServer) LikeComment(context.Context, *LikeCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LikeComment not implemented")
+}
+func (UnimplementedBlogServiceServer) ListComments(context.Context, *ListCommentsRequest) (*ListCommentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListComments not implemented")
+}
+func (UnimplementedBlogServiceServer) CreateComments(context.Context, *CreateCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateComments not implemented")
+}
+func (UnimplementedBlogServiceServer) UpdateComments(context.Context, *UpdateCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateComments not implemented")
+}
+func (UnimplementedBlogServiceServer) DeleteComment(context.Context, *DeleteCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
 }
 func (UnimplementedBlogServiceServer) mustEmbedUnimplementedBlogServiceServer() {}
 func (UnimplementedBlogServiceServer) testEmbeddedByValue()                     {}
@@ -206,6 +302,114 @@ func _BlogService_DeletePost_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BlogService_LikePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikePostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).LikePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_LikePost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).LikePost(ctx, req.(*LikePostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_LikeComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikeCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).LikeComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_LikeComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).LikeComment(ctx, req.(*LikeCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_ListComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCommentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).ListComments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_ListComments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).ListComments(ctx, req.(*ListCommentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_CreateComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).CreateComments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_CreateComments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).CreateComments(ctx, req.(*CreateCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_UpdateComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).UpdateComments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_UpdateComments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).UpdateComments(ctx, req.(*UpdateCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_DeleteComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).DeleteComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_DeleteComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).DeleteComment(ctx, req.(*DeleteCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BlogService_ServiceDesc is the grpc.ServiceDesc for BlogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +432,30 @@ var BlogService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeletePost",
 			Handler:    _BlogService_DeletePost_Handler,
+		},
+		{
+			MethodName: "LikePost",
+			Handler:    _BlogService_LikePost_Handler,
+		},
+		{
+			MethodName: "LikeComment",
+			Handler:    _BlogService_LikeComment_Handler,
+		},
+		{
+			MethodName: "ListComments",
+			Handler:    _BlogService_ListComments_Handler,
+		},
+		{
+			MethodName: "CreateComments",
+			Handler:    _BlogService_CreateComments_Handler,
+		},
+		{
+			MethodName: "UpdateComments",
+			Handler:    _BlogService_UpdateComments_Handler,
+		},
+		{
+			MethodName: "DeleteComment",
+			Handler:    _BlogService_DeleteComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

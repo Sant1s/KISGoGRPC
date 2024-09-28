@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS posts;
+drop table if exists posts;
