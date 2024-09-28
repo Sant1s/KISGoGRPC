@@ -22,4 +22,10 @@ go.work
 go.work.sum
 
 # env file
-.env
+config.yaml
+.data_pgadmin
+.postgresql
+.redisdata
+.vscode
+.logs
+.idea

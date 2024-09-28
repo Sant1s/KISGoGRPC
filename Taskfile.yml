@@ -1,0 +1,24 @@
+version: "3"
+
+tasks:
+  run-local:
+    cmds:
+      - go run cmd/service/main.go --config_path=./config.yaml
+
+  run-migrations:
+    cmds:
+      - go run cmd/migrator/main.go
+
+  build-container:
+    cmds:
+      - docker build ./ -t kis-blog-backend
+    silent: false
+
+  run-container:
+    cmds:
+      - docker run -p 5000:5000 -it kis-blog-backend
+    silent: false
+
+  generate:
+    cmds:
+      - protoc -I proto proto/service.proto --go_out=./internal/gen/ --go_opt=paths=source_relative --go-grpc_out=./internal/gen/ --go-grpc_opt=paths=source_relative

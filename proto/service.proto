@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package kis.blog.backend;
+
+import "annotations.proto";
+
+option go_package = "github.com/Sant1s/blogBack/blogService;blogService";
+
+service BlogService {
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/posts"
+    };
+  }
+
+  rpc CreatePost(CreatePostRequest) returns (Response) {
+    option (google.api.http) = {
+      post : "/api/v1/post"
+      body : "*"
+    };
+  }
+
+  rpc UpdatePost(UpdatePostRequest) returns (Response) {
+    option (google.api.http) = {
+      patch : "/api/v1/post"
+      body : "*"
+    };
+  }
+
+  rpc DeletePost(DeletePostRequest) returns (Response) {
+    option (google.api.http) = {
+      delete : "/api/v1/post"
+      body : "*"
+    };
+  }
+
+  rpc LikePost(LikePostRequest) returns (Response) {
+    option (google.api.http) = {
+      delete : "/api/v1/post/like"
+      body : "*"
+    };
+  }
+
+  rpc LikeComment(LikeCommentRequest) returns (Response) {
+    option (google.api.http) = {
+      delete : "/api/v1/comments/like"
+      body : "*"
+    };
+  }
+
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse) {
+    option (google.api.http) = {
+      get : "/api/v1/comments"
+    };
+  }
+
+  rpc CreateComments(CreateCommentRequest) returns (Response) {
+    option (google.api.http) = {
+      post : "/api/v1/post"
+      body : "*"
+    };
+  }
+
+  rpc UpdateComments(UpdateCommentRequest) returns (Response) {
+    option (google.api.http) = {
+      patch : "/api/v1/comments"
+      body : "*"
+    };
+  }
+
+  rpc DeleteComment(DeleteCommentRequest) returns (Response) {
+    option (google.api.http) = {
+      delete : "/api/v1/comments"
+      body : "*"
+    };
+  }
+}
+
+message Comment {
+  int64 id = 1;
+  string author = 2;
+  string body = 3;
+  string create_time = 4;
+  int64 comment_count = 5;
+  int64 likes_count = 6;
+  int64 parent_id = 7;
+}
+
+message ListCommentsResponse {
+  repeated Comment comments = 1;
+  string message = 2;
+}
+
+message ListCommentsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message CreateCommentRequest {
+  int64 post_id = 1;
+  int64 parent_id = 2;
+  string author = 3;
+  string body = 4;
+}
+
+message UpdateCommentRequest {
+  int64 post_id = 2;
+  string body = 4;
+}
+
+message DeleteCommentRequest {
+  int64 post_id = 2;
+}
+
+message Post {
+  int64 id = 1;
+  string author = 2;
+  string body = 3;
+  string create_time = 4;
+  int64 comment_count = 5;
+  int64 likes_count = 6;
+}
+
+message ListPostsResponse {
+  repeated Post posts = 1;
+  string message = 2;
+}
+
+message ListPostsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message CreatePostRequest {
+  string author = 1;
+  string body = 2;
+}
+
+message UpdatePostRequest {
+  int64 id = 1;
+  string data = 2;
+}
+
+message DeletePostRequest {int64 post_id = 1;}
+
+message Response {
+  int64 post_id = 1;
+  string message = 2;
+}
+
+message LikePostRequest {
+  string user_name = 1;
+  int64 post_id = 2;
+}
+
+message LikeCommentRequest {
+  string user_name = 1;
+  int64 comment_id = 2;
+}
