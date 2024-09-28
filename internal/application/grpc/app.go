@@ -24,6 +24,7 @@ type Auth interface {
 func New(
 	log *slog.Logger,
 	blogService bloggrpc.Blog,
+	likesService bloggrpc.Likes,
 	port int,
 	auth Auth,
 ) *App {
@@ -36,7 +37,7 @@ func New(
 		),
 	)
 
-	bloggrpc.Register(gRPCServer, blogService)
+	bloggrpc.Register(log, gRPCServer, blogService, likesService)
 
 	return &App{
 		log:        log,

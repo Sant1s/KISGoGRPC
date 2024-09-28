@@ -43,7 +43,7 @@ func main() {
 		cfg.Database.Postgres.Db,
 	)
 	cacheStoragePath := map[string]any{
-		"addres":    fmt.Sprintf("%s:%d", cfg.Database.Redis.Host, cfg.Database.Redis.Port),
+		"address":   fmt.Sprintf("%s:%d", cfg.Database.Redis.Host, cfg.Database.Redis.Port),
 		"password":  cfg.Database.Redis.Password,
 		"db_number": cfg.Database.Redis.DbNumer,
 	}

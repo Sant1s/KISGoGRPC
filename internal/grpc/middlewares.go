@@ -63,7 +63,7 @@ func (l *Interceptors) LoggingUnaryInterceptor(
 		return nil, err
 	}
 
-	l.l.Error(
+	l.l.Info(
 		"executing handler ended successfully",
 		slog.String("op", op),
 		slog.String("handler", info.FullMethod),

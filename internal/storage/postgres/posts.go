@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Sant1s/blogBack/internal/storage"
 	"log/slog"
 
 	"github.com/Sant1s/blogBack/internal/domain"
@@ -12,44 +13,10 @@ import (
 )
 
 // ----------------------------
-//		VALIDATE USER
+//
+//	CREATE POST
+//
 // ----------------------------
-
-const queryValidateUser = `SELECT id FROM users WHERE nickname=$1 AND password_hash=$2`
-
-func (p *Postgres) ValidateUser(ctx context.Context, nickname, passwordHash string) error {
-	const op = "storage.postgres.ValidateUser"
-
-	p.logger.Info(fmt.Sprintf("executing query: %s", queryValidateUser), slog.String("op", op))
-
-	var id string
-	res := p.db.QueryRowContext(ctx, queryValidateUser, nickname, passwordHash)
-
-	err := res.Scan(&id)
-
-	if err != nil {
-		p.logger.Error(
-			"failed to execute query",
-			slog.String("query", queryValidateUser),
-			slog.String("op", op),
-			slog.Any("err", err),
-		)
-
-		if errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("%w: %v", ErrDoesNotExists, err)
-		}
-		return fmt.Errorf("%w: %w", ErrorInternal, err)
-	}
-
-	return nil
-}
-
-// ----------------------------
-//		CREATE POST
-// ----------------------------
-
-const queryGetAuthorId = `SELECT id FROM users WHERE nickname=$1;`
-
 const queryCreatePost = `
 INSERT INTO posts (id, author_id, data)
 VALUES ($1, $2, $3)
@@ -60,27 +27,20 @@ RETURNING id;
 func (p *Postgres) CreatePost(ctx context.Context, post *domain.Post) error {
 	const op = "postgres.CreatePost"
 
-	// Get author uuid
-	var authorUuid string
-
-	p.logger.Info(fmt.Sprintf("executing query: %s", queryGetAuthorId), slog.String("op", op))
-
-	resAuthorId := p.db.QueryRowContext(ctx, queryGetAuthorId, post.Author)
-
-	err := resAuthorId.Scan(&authorUuid)
+	uuid, err := p.getUserId(ctx, post.Author)
 	if err != nil {
 		p.logger.Error(
-			"failed to execute query: %s",
-			slog.String("query", queryGetAuthorId),
+			"failed to execute query",
+			slog.String("query", queryCreatePost),
 			slog.String("op", op),
 			slog.Any("err", err),
 		)
 
-		return fmt.Errorf("%w: %v", ErrorInternal, err)
+		return err
 	}
 
 	// execute create query
-	res := p.db.QueryRowContext(ctx, queryCreatePost, post.Id, authorUuid, post.Body)
+	res := p.db.QueryRowContext(ctx, queryCreatePost, post.Id, uuid, post.Body)
 	var id int64
 
 	err = res.Scan(&id)
@@ -93,7 +53,7 @@ func (p *Postgres) CreatePost(ctx context.Context, post *domain.Post) error {
 			slog.Any("err", err),
 		)
 
-		return fmt.Errorf("%w: %v", ErrorInternal, err)
+		return fmt.Errorf("%w: %v", storage.ErrInternal, err)
 	}
 
 	return nil
@@ -102,6 +62,18 @@ func (p *Postgres) CreatePost(ctx context.Context, post *domain.Post) error {
 // ----------------------------
 // 		DELETE POST
 // ----------------------------
+
+/*
+
+		Мнение автора таково, что при удалении поста комментарии не должны удаляться.
+	Потому что вдруг нам будет нужна выгрузка пользователей, которые пишут плохие
+	комментарии, на наша модель удаления запускается раз в ночь, когда маленькая нагрузка.
+	Таких пользователей нужно забанить. А вдруг этот гад написал много плохого и резко всё удалил.
+
+		Это причина, по которой автор не использовал здесь удаление комментариев к посту и транзакции,
+	а не потому что он ленивый =)
+
+*/
 
 const queryDeletePost = `DELETE FROM posts WHERE id=$1;`
 
@@ -115,7 +87,7 @@ func (p *Postgres) DeletePost(ctx context.Context, postId int64) error {
 
 	if err != nil {
 		p.logger.Error(fmt.Sprintf("database error %s", err.Error()), slog.String("op", op))
-		return fmt.Errorf("%w: %v", ErrDoesNotExists, err)
+		return fmt.Errorf("%w: %v", storage.ErrDoesNotExists, err)
 	}
 
 	rowsAffected, err := res.RowsAffected()
@@ -131,11 +103,11 @@ func (p *Postgres) DeletePost(ctx context.Context, postId int64) error {
 
 			return fmt.Errorf(
 				"%w: %v",
-				ErrDoesNotExists,
+				storage.ErrDoesNotExists,
 				fmt.Sprintf("post with id=%d not found", postId),
 			)
 		}
-		return fmt.Errorf("%w: %v", ErrorInternal, err)
+		return fmt.Errorf("%w: %v", storage.ErrInternal, err)
 	}
 
 	return nil
@@ -172,7 +144,7 @@ func (p *Postgres) GetListPosts(ctx context.Context, limit int32, offset int32) 
 			slog.Any("err", err),
 		)
 
-		return nil, fmt.Errorf("%w: %v", ErrorInternal, err)
+		return nil, fmt.Errorf("%w: %v", storage.ErrInternal, err)
 	}
 
 	result := make([]domain.Post, 0)
@@ -188,7 +160,7 @@ func (p *Postgres) GetListPosts(ctx context.Context, limit int32, offset int32) 
 				slog.String("query", queryGetListPosts),
 				slog.Any("err", err),
 			)
-			return nil, fmt.Errorf("%w: %v", ErrorInternal, err)
+			return nil, fmt.Errorf("%w: %v", storage.ErrInternal, err)
 		}
 
 		result = append(result, post)
@@ -209,7 +181,7 @@ RETURNING id;
 `
 
 // UpdatePost implements blog.BlogPosts.
-func (p *Postgres) UpdatePost(ctx context.Context, request *domain.PostUpdateRequest) (int64, error) {
+func (p *Postgres) UpdatePost(ctx context.Context, request *domain.PostUpdateRequest) error {
 	const op = "postgres.UpdatePost"
 
 	p.logger.Info(fmt.Sprintf("executing query: %s", queryUpdatePosts), slog.String("op", op))
@@ -219,27 +191,77 @@ func (p *Postgres) UpdatePost(ctx context.Context, request *domain.PostUpdateReq
 	var resId int64
 	err := res.Scan(&resId)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			p.logger.Error(
-				fmt.Sprintf("post with id=%d not found", request.Id),
-				slog.String("query", queryUpdatePosts),
-				slog.String("op", op),
-				slog.Any("err", err),
-			)
+		p.logger.Error(
+			"failed executing query",
+			slog.String("query", queryUpdatePosts),
+			slog.String("op", op),
+			slog.Any("err", err),
+		)
 
-			return 0, fmt.Errorf(
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf(
 				"%w: %v",
-				ErrDoesNotExists,
+				storage.ErrDoesNotExists,
 				err,
 			)
 		}
 
-		return 0, fmt.Errorf(
+		return fmt.Errorf(
 			"%w: %v",
-			ErrorInternal,
+			storage.ErrInternal,
 			err,
 		)
 	}
 
-	return resId, nil
+	return nil
+}
+
+// ----------------------------
+//		UPDATE LIKES COUNT
+// ----------------------------
+
+const queryUpdateLikesCountOnPost = `
+UPDATE posts
+SET likes_count=likes_count + 1
+WHERE id=$1
+RETURNING id;
+`
+
+func (p *Postgres) UpdateLikesCountOnPost(ctx context.Context, postId int64, userName string) error {
+	const op = "postgres.UpdateLikesCountOnPost"
+
+	if _, err := p.getUserId(ctx, userName); err != nil {
+		return err
+	}
+
+	p.logger.Info(fmt.Sprintf("executing query: %s", queryUpdateLikesCountOnPost), slog.String("op", op))
+
+	res := p.db.QueryRowContext(ctx, queryUpdateLikesCountOnPost, postId)
+
+	var resId int64
+	err := res.Scan(&resId)
+	if err != nil {
+		p.logger.Error(
+			"failed executing query",
+			slog.String("query", queryUpdateLikesCountOnPost),
+			slog.String("op", op),
+			slog.Any("err", err),
+		)
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf(
+				"%w: %v",
+				storage.ErrDoesNotExists,
+				err,
+			)
+		}
+
+		return fmt.Errorf(
+			"%w: %v",
+			storage.ErrInternal,
+			err,
+		)
+	}
+
+	return nil
 }

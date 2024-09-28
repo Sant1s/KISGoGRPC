@@ -19,10 +19,12 @@ type PostUpdateRequest struct {
 type Comment struct {
 	Id           int64     `db:"id" json:"id"`
 	Author       string    `db:"nickname" json:"author"`
+	PostId       int64     `db:"post_id" json:"post_id"`
 	Body         string    `db:"data" json:"body"`
 	CreateTime   time.Time `db:"created_at" json:"create_time"`
 	CommentCount int64     `db:"comments_count" json:"comments_count"`
 	LikesCount   int64     `db:"likes_count" json:"likes_count"`
+	ParentId     int64     `db:"parent_id" json:"parent_id"`
 }
 
 type CommentUpdateRequest struct {

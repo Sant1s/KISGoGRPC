@@ -38,6 +38,6 @@ func New(
 
 	log.Info("application successfully created", slog.String("op", op))
 	return &App{
-		GRPCSrv: grpcapplication.New(log, blogService, grpcPort, pgStorage),
+		GRPCSrv: grpcapplication.New(log, blogService, blogService, grpcPort, pgStorage),
 	}
 }
