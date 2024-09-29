@@ -19,7 +19,7 @@ import (
 func (s *serverAPI) ListPosts(ctx context.Context, req *blogService.ListPostsRequest) (*blogService.ListPostsResponse, error) {
 	const op = "bloggrpc.ListPosts"
 
-	reqCtx, cancel := context.WithTimeout(ctx, time.Second*500)
+	reqCtx, cancel := context.WithTimeout(ctx, time.Millisecond*500)
 	defer cancel()
 
 	posts, err := s.blog.GetPosts(reqCtx, req.GetLimit(), req.GetOffset())
@@ -167,7 +167,7 @@ func (s *serverAPI) DeletePost(ctx context.Context, req *blogService.DeletePostR
 func (s *serverAPI) LikePost(ctx context.Context, request *blogService.LikePostRequest) (*blogService.Response, error) {
 	const op = "bloggrpc.LikePost"
 
-	reqCtx, cancel := context.WithTimeout(ctx, time.Hour*500)
+	reqCtx, cancel := context.WithTimeout(ctx, time.Millisecond*500)
 	defer cancel()
 
 	err := s.likes.LikePost(reqCtx, request.GetUserName(), request.GetPostId())

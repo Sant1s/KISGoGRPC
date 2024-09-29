@@ -222,12 +222,12 @@ func (p *Postgres) UpdatePost(ctx context.Context, request *domain.PostUpdateReq
 
 const queryUpdateLikesCountOnPost = `
 UPDATE posts
-SET likes_count=likes_count + 1
-WHERE id=$1
+SET likes_count=likes_count + $1
+WHERE id=$2 AND likes_count >= 0
 RETURNING id;
 `
 
-func (p *Postgres) UpdateLikesCountOnPost(ctx context.Context, postId int64, userName string) error {
+func (p *Postgres) UpdateLikesCountOnPost(ctx context.Context, postId int64, userName string, delta int64) error {
 	const op = "postgres.UpdateLikesCountOnPost"
 
 	if _, err := p.getUserId(ctx, userName); err != nil {
@@ -236,7 +236,7 @@ func (p *Postgres) UpdateLikesCountOnPost(ctx context.Context, postId int64, use
 
 	p.logger.Info(fmt.Sprintf("executing query: %s", queryUpdateLikesCountOnPost), slog.String("op", op))
 
-	res := p.db.QueryRowContext(ctx, queryUpdateLikesCountOnPost, postId)
+	res := p.db.QueryRowContext(ctx, queryUpdateLikesCountOnPost, delta, postId)
 
 	var resId int64
 	err := res.Scan(&resId)

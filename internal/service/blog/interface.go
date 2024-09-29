@@ -26,13 +26,13 @@ type Posts interface {
 	CreatePost(ctx context.Context, post *domain.Post) error
 	UpdatePost(ctx context.Context, updates *domain.PostUpdateRequest) error
 	DeletePost(ctx context.Context, postId int64) error
-	UpdateLikesCountOnPost(ctx context.Context, postId int64, userName string) error
+	UpdateLikesCountOnPost(ctx context.Context, postId int64, userName string, delta int64) error
 
 	GetListComments(ctx context.Context, limit, offset int32, postId int64) ([]domain.Comment, error)
 	CreateComment(ctx context.Context, comment *domain.Comment) error
 	UpdateComment(ctx context.Context, updates *domain.CommentUpdateRequest) error
 	DeleteComment(ctx context.Context, commentId, postId int64) error
-	UpdateLikesCountOnComment(ctx context.Context, commentId int64, userName string) error
+	UpdateLikesCountOnComment(ctx context.Context, commentId int64, userName string, delta int64) error
 }
 
 // (data-layer redis)

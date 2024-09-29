@@ -354,12 +354,12 @@ func (p *Postgres) DeleteComment(ctx context.Context, commentId, postId int64) e
 
 const queryUpdateLikesCountOnComment = `
 UPDATE comments
-SET likes_count=likes_count + 1
-WHERE id=$1
+SET likes_count=likes_count + $1
+WHERE id=$2 AND likes_count >= 0
 RETURNING id;
 `
 
-func (p *Postgres) UpdateLikesCountOnComment(ctx context.Context, commentId int64, userName string) error {
+func (p *Postgres) UpdateLikesCountOnComment(ctx context.Context, commentId int64, userName string, delta int64) error {
 	const op = "postgres.UpdateLikesCountOnComment"
 
 	if _, err := p.getUserId(ctx, userName); err != nil {
@@ -368,7 +368,7 @@ func (p *Postgres) UpdateLikesCountOnComment(ctx context.Context, commentId int6
 
 	p.logger.Info(fmt.Sprintf("executing query: %s", queryUpdateLikesCountOnComment), slog.String("op", op))
 
-	res := p.db.QueryRowContext(ctx, queryUpdateLikesCountOnComment, commentId)
+	res := p.db.QueryRowContext(ctx, queryUpdateLikesCountOnComment, delta, commentId)
 
 	var resId int64
 	err := res.Scan(&resId)

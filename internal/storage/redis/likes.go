@@ -185,13 +185,13 @@ func (r Redis) RollbackLikeComment(ctx context.Context, userName string, comment
 	return nil
 }
 
-func GetLikedPosts(rdb *redis.Client, username string) ([]string, error) {
+func (r Redis) GetLikedPosts(rdb *redis.Client, username string) ([]string, error) {
 	return rdb.SMembers(
 		fmt.Sprintf("likes:posts:%s", username),
 	).Result()
 }
 
-func GetLikedComments(rdb *redis.Client, username string) ([]string, error) {
+func (r Redis) GetLikedComments(rdb *redis.Client, username string) ([]string, error) {
 	return rdb.SMembers(
 		fmt.Sprintf("likes:comments:%s", username),
 	).Result()

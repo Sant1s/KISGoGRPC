@@ -36,12 +36,26 @@ service BlogService {
 
   rpc LikePost(LikePostRequest) returns (Response) {
     option (google.api.http) = {
+      post : "/api/v1/post/like"
+      body : "*"
+    };
+  }
+
+  rpc RemoveLikePost(LikePostRequest) returns (Response) {
+    option (google.api.http) = {
       delete : "/api/v1/post/like"
       body : "*"
     };
   }
 
   rpc LikeComment(LikeCommentRequest) returns (Response) {
+    option (google.api.http) = {
+      delete : "/api/v1/comments/like"
+      body : "*"
+    };
+  }
+
+  rpc RemoveLikeComment(LikeCommentRequest) returns (Response) {
     option (google.api.http) = {
       delete : "/api/v1/comments/like"
       body : "*"

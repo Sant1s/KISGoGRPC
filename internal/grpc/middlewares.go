@@ -96,7 +96,7 @@ func (l *Interceptors) AuthUnaryInterceptor(
 		return nil, ErrMissingMetadata
 	}
 
-	dbCtx, cancel := context.WithTimeout(ctx, time.Second*100)
+	dbCtx, cancel := context.WithTimeout(ctx, time.Millisecond*100)
 	defer cancel()
 
 	nickname, passHash, err := l.parseCredentials(authCredentials[0])

@@ -33,6 +33,9 @@ type Blog interface {
 type Likes interface {
 	LikePost(ctx context.Context, userName string, postId int64) error
 	LikeComment(ctx context.Context, userName string, commentId int64) error
+
+	RemoveLikePost(ctx context.Context, userName string, postId int64) error
+	RemoveLikeComment(ctx context.Context, userName string, commentId int64) error
 }
 
 type serverAPI struct {

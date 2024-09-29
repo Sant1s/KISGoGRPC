@@ -19,7 +19,7 @@ import (
 func (s *serverAPI) ListComments(ctx context.Context, request *blogService.ListCommentsRequest) (*blogService.ListCommentsResponse, error) {
 	const op = "bloggrpc.ListComments"
 
-	reqCtx, cancel := context.WithTimeout(ctx, time.Second*500)
+	reqCtx, cancel := context.WithTimeout(ctx, time.Millisecond*500)
 	defer cancel()
 
 	comments, err := s.blog.GetComments(reqCtx, request.GetLimit(), request.GetOffset(), request.GetPostId())
@@ -138,7 +138,7 @@ func (s *serverAPI) UpdateComments(ctx context.Context, request *blogService.Upd
 func (s *serverAPI) DeleteComment(ctx context.Context, request *blogService.DeleteCommentRequest) (*blogService.Response, error) {
 	const op = "bloggrpc.DeleteComment"
 
-	reqCtx, cancel := context.WithTimeout(ctx, time.Hour*500)
+	reqCtx, cancel := context.WithTimeout(ctx, time.Millisecond*500)
 	defer cancel()
 
 	err := s.blog.DeleteComment(reqCtx, request.GetCommentId(), request.GetPostId())

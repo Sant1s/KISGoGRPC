@@ -19,16 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BlogService_ListPosts_FullMethodName      = "/kis.blog.backend.BlogService/ListPosts"
-	BlogService_CreatePost_FullMethodName     = "/kis.blog.backend.BlogService/CreatePost"
-	BlogService_UpdatePost_FullMethodName     = "/kis.blog.backend.BlogService/UpdatePost"
-	BlogService_DeletePost_FullMethodName     = "/kis.blog.backend.BlogService/DeletePost"
-	BlogService_LikePost_FullMethodName       = "/kis.blog.backend.BlogService/LikePost"
-	BlogService_LikeComment_FullMethodName    = "/kis.blog.backend.BlogService/LikeComment"
-	BlogService_ListComments_FullMethodName   = "/kis.blog.backend.BlogService/ListComments"
-	BlogService_CreateComments_FullMethodName = "/kis.blog.backend.BlogService/CreateComments"
-	BlogService_UpdateComments_FullMethodName = "/kis.blog.backend.BlogService/UpdateComments"
-	BlogService_DeleteComment_FullMethodName  = "/kis.blog.backend.BlogService/DeleteComment"
+	BlogService_ListPosts_FullMethodName         = "/kis.blog.backend.BlogService/ListPosts"
+	BlogService_CreatePost_FullMethodName        = "/kis.blog.backend.BlogService/CreatePost"
+	BlogService_UpdatePost_FullMethodName        = "/kis.blog.backend.BlogService/UpdatePost"
+	BlogService_DeletePost_FullMethodName        = "/kis.blog.backend.BlogService/DeletePost"
+	BlogService_LikePost_FullMethodName          = "/kis.blog.backend.BlogService/LikePost"
+	BlogService_RemoveLikePost_FullMethodName    = "/kis.blog.backend.BlogService/RemoveLikePost"
+	BlogService_LikeComment_FullMethodName       = "/kis.blog.backend.BlogService/LikeComment"
+	BlogService_RemoveLikeComment_FullMethodName = "/kis.blog.backend.BlogService/RemoveLikeComment"
+	BlogService_ListComments_FullMethodName      = "/kis.blog.backend.BlogService/ListComments"
+	BlogService_CreateComments_FullMethodName    = "/kis.blog.backend.BlogService/CreateComments"
+	BlogService_UpdateComments_FullMethodName    = "/kis.blog.backend.BlogService/UpdateComments"
+	BlogService_DeleteComment_FullMethodName     = "/kis.blog.backend.BlogService/DeleteComment"
 )
 
 // BlogServiceClient is the client API for BlogService service.
@@ -40,7 +42,9 @@ type BlogServiceClient interface {
 	UpdatePost(ctx context.Context, in *UpdatePostRequest, opts ...grpc.CallOption) (*Response, error)
 	DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*Response, error)
 	LikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*Response, error)
+	RemoveLikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*Response, error)
 	LikeComment(ctx context.Context, in *LikeCommentRequest, opts ...grpc.CallOption) (*Response, error)
+	RemoveLikeComment(ctx context.Context, in *LikeCommentRequest, opts ...grpc.CallOption) (*Response, error)
 	ListComments(ctx context.Context, in *ListCommentsRequest, opts ...grpc.CallOption) (*ListCommentsResponse, error)
 	CreateComments(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*Response, error)
 	UpdateComments(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*Response, error)
@@ -105,10 +109,30 @@ func (c *blogServiceClient) LikePost(ctx context.Context, in *LikePostRequest, o
 	return out, nil
 }
 
+func (c *blogServiceClient) RemoveLikePost(ctx context.Context, in *LikePostRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_RemoveLikePost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *blogServiceClient) LikeComment(ctx context.Context, in *LikeCommentRequest, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Response)
 	err := c.cc.Invoke(ctx, BlogService_LikeComment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *blogServiceClient) RemoveLikeComment(ctx context.Context, in *LikeCommentRequest, opts ...grpc.CallOption) (*Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Response)
+	err := c.cc.Invoke(ctx, BlogService_RemoveLikeComment_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +188,9 @@ type BlogServiceServer interface {
 	UpdatePost(context.Context, *UpdatePostRequest) (*Response, error)
 	DeletePost(context.Context, *DeletePostRequest) (*Response, error)
 	LikePost(context.Context, *LikePostRequest) (*Response, error)
+	RemoveLikePost(context.Context, *LikePostRequest) (*Response, error)
 	LikeComment(context.Context, *LikeCommentRequest) (*Response, error)
+	RemoveLikeComment(context.Context, *LikeCommentRequest) (*Response, error)
 	ListComments(context.Context, *ListCommentsRequest) (*ListCommentsResponse, error)
 	CreateComments(context.Context, *CreateCommentRequest) (*Response, error)
 	UpdateComments(context.Context, *UpdateCommentRequest) (*Response, error)
@@ -194,8 +220,14 @@ func (UnimplementedBlogServiceServer) DeletePost(context.Context, *DeletePostReq
 func (UnimplementedBlogServiceServer) LikePost(context.Context, *LikePostRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LikePost not implemented")
 }
+func (UnimplementedBlogServiceServer) RemoveLikePost(context.Context, *LikePostRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveLikePost not implemented")
+}
 func (UnimplementedBlogServiceServer) LikeComment(context.Context, *LikeCommentRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LikeComment not implemented")
+}
+func (UnimplementedBlogServiceServer) RemoveLikeComment(context.Context, *LikeCommentRequest) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveLikeComment not implemented")
 }
 func (UnimplementedBlogServiceServer) ListComments(context.Context, *ListCommentsRequest) (*ListCommentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListComments not implemented")
@@ -320,6 +352,24 @@ func _BlogService_LikePost_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BlogService_RemoveLikePost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikePostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).RemoveLikePost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_RemoveLikePost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).RemoveLikePost(ctx, req.(*LikePostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BlogService_LikeComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LikeCommentRequest)
 	if err := dec(in); err != nil {
@@ -334,6 +384,24 @@ func _BlogService_LikeComment_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BlogServiceServer).LikeComment(ctx, req.(*LikeCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BlogService_RemoveLikeComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LikeCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BlogServiceServer).RemoveLikeComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BlogService_RemoveLikeComment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BlogServiceServer).RemoveLikeComment(ctx, req.(*LikeCommentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -438,8 +506,16 @@ var BlogService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BlogService_LikePost_Handler,
 		},
 		{
+			MethodName: "RemoveLikePost",
+			Handler:    _BlogService_RemoveLikePost_Handler,
+		},
+		{
 			MethodName: "LikeComment",
 			Handler:    _BlogService_LikeComment_Handler,
+		},
+		{
+			MethodName: "RemoveLikeComment",
+			Handler:    _BlogService_RemoveLikeComment_Handler,
 		},
 		{
 			MethodName: "ListComments",
