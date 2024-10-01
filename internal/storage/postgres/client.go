@@ -27,6 +27,8 @@ type BlogPosts interface {
 
 type Auth interface {
 	ValidateUser(ctx context.Context, nickname, passwordHash string) error
+	Register(ctx context.Context, request *domain.RegisterUserRequest) error
+	Login(ctx context.Context, request *domain.LoginUserRequest) error
 }
 
 type Postgres struct {

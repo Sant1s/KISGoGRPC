@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	bloggrpc "github.com/Sant1s/blogBack/internal/grpc/blog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -18,6 +19,7 @@ var (
 	ErrMissingMetadata    = status.Errorf(codes.InvalidArgument, "missing metadata")
 	ErrInvalidUser        = status.Errorf(codes.Unauthenticated, "invalid token")
 	ErrInvalidCredentials = status.Errorf(codes.InvalidArgument, "invalid user Credentials")
+	ErrInternal           = status.Error(codes.Internal, "internal")
 )
 
 type Auth interface {
@@ -80,40 +82,54 @@ func (l *Interceptors) AuthUnaryInterceptor(
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	const op = "middleware.AuthUnaryInterceptor"
-	l.l.Info(fmt.Sprintf("auth interceptor on method: %s\n", info.FullMethod), slog.String("op", op))
 
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, ErrMissingMetadata
-	}
+	if info.FullMethod != "/kis.blog.backend.BlogService/Login" &&
+		info.FullMethod != "/kis.blog.backend.BlogService/Register" {
 
-	authCredentials, ok := md["authorization"]
-	if !ok {
-		l.l.Error(
-			"authorization header required",
-			slog.String("op", op),
-		)
-		return nil, ErrMissingMetadata
-	}
+		l.l.Info(fmt.Sprintf("auth interceptor on method: %s\n", info.FullMethod), slog.String("op", op))
 
-	dbCtx, cancel := context.WithTimeout(ctx, time.Millisecond*100)
-	defer cancel()
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			return nil, ErrMissingMetadata
+		}
 
-	nickname, passHash, err := l.parseCredentials(authCredentials[0])
-	if err != nil {
-		l.l.Error(
-			"invalid credentials",
-			slog.String("op", op),
-		)
-		return nil, ErrInvalidCredentials
-	}
+		authCredentials, ok := md["authorization"]
+		if !ok {
+			l.l.Error(
+				"authorization header required",
+				slog.String("op", op),
+			)
+			return nil, ErrMissingMetadata
+		}
 
-	if err := l.auth.ValidateUser(dbCtx, nickname, passHash); err != nil {
-		l.l.Error(
-			fmt.Sprintf("can not validate user: %s", err.Error()),
-			slog.String("op", op),
-		)
-		return nil, ErrInvalidUser
+		dbCtx, cancel := context.WithTimeout(ctx, time.Millisecond*100)
+		defer cancel()
+
+		nickname, pass, err := l.parseCredentials(authCredentials[0])
+		if err != nil {
+			l.l.Error(
+				"invalid credentials",
+				slog.String("op", op),
+			)
+			return nil, ErrInvalidCredentials
+		}
+
+		passHash, err := bloggrpc.HashPassword(pass)
+		if err != nil {
+			l.l.Error(
+				"password hashing error",
+				slog.String("op", op),
+			)
+			return nil, ErrInternal
+		}
+
+		if err := l.auth.ValidateUser(dbCtx, nickname, passHash); err != nil {
+			l.l.Error(
+				fmt.Sprintf("can not validate user: %s", err.Error()),
+				slog.String("op", op),
+			)
+			return nil, ErrInvalidUser
+		}
 	}
 
 	m, err := handler(ctx, request)

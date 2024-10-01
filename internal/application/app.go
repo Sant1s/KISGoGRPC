@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/Sant1s/blogBack/internal/service/auth"
+
 	grpcapplication "github.com/Sant1s/blogBack/internal/application/grpc"
 	"github.com/Sant1s/blogBack/internal/service/blog"
 	"github.com/Sant1s/blogBack/internal/storage/postgres"
@@ -35,9 +37,18 @@ func New(
 	}
 
 	blogService := blog.New(log, pgStorage, redisStorage)
+	authService := auth.New(log, pgStorage)
 
 	log.Info("application successfully created", slog.String("op", op))
+
 	return &App{
-		GRPCSrv: grpcapplication.New(log, blogService, blogService, grpcPort, pgStorage),
+		GRPCSrv: grpcapplication.New(
+			log,
+			blogService,
+			blogService,
+			authService,
+			pgStorage,
+			grpcPort,
+		),
 	}
 }

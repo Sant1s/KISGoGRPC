@@ -18,15 +18,16 @@ type App struct {
 }
 
 type Auth interface {
-	ValidateUser(ctx context.Context, nickname, password_hash string) error
+	ValidateUser(ctx context.Context, nickname, passwordHash string) error
 }
 
 func New(
 	log *slog.Logger,
 	blogService bloggrpc.Blog,
 	likesService bloggrpc.Likes,
-	port int,
+	authService bloggrpc.Auth,
 	auth Auth,
+	port int,
 ) *App {
 	middlewares := middleware.New(log, auth)
 
@@ -37,7 +38,7 @@ func New(
 		),
 	)
 
-	bloggrpc.Register(log, gRPCServer, blogService, likesService)
+	bloggrpc.Register(log, gRPCServer, blogService, likesService, authService)
 
 	return &App{
 		log:        log,

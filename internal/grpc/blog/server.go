@@ -2,12 +2,13 @@ package bloggrpc
 
 import (
 	"context"
+	"log/slog"
+
 	"github.com/Sant1s/blogBack/internal/domain"
 	blogService "github.com/Sant1s/blogBack/internal/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log/slog"
 )
 
 var (
@@ -38,17 +39,24 @@ type Likes interface {
 	RemoveLikeComment(ctx context.Context, userName string, commentId int64) error
 }
 
+type Auth interface {
+	RegisterUser(ctx context.Context, request *domain.RegisterUserRequest) (*domain.RegisterUserResponse, error)
+	LoginUser(ctx context.Context, request *domain.LoginUserRequest) (*domain.LoginUserResponse, error)
+}
+
 type serverAPI struct {
 	logger *slog.Logger
 	blogService.UnimplementedBlogServiceServer
 	blog  Blog
 	likes Likes
+	auth  Auth
 }
 
-func Register(l *slog.Logger, gRPC *grpc.Server, blog Blog, likes Likes) {
+func Register(l *slog.Logger, gRPC *grpc.Server, blog Blog, likes Likes, auth Auth) {
 	blogService.RegisterBlogServiceServer(gRPC, &serverAPI{
 		logger: l,
 		blog:   blog,
 		likes:  likes,
+		auth:   auth,
 	})
 }

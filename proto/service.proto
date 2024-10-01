@@ -6,7 +6,31 @@ import "annotations.proto";
 
 option go_package = "github.com/Sant1s/blogBack/blogService;blogService";
 
+message RegisterRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  int64 code = 1;
+  string output = 2; // здесь будет описание, в случае ошибки
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  int64 code = 1;
+  string output = 2;
+  repeated string permissons = 3;
+}
+
 service BlogService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+
   rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
     option (google.api.http) = {
       get : "/api/v1/posts"
@@ -158,7 +182,7 @@ message UpdatePostRequest {
   string data = 2;
 }
 
-message DeletePostRequest {int64 post_id = 1;}
+message DeletePostRequest { int64 post_id = 1; }
 
 message Response {
   int64 id = 1;
