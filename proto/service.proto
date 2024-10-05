@@ -9,6 +9,7 @@ option go_package = "github.com/Sant1s/blogBack/blogService;blogService";
 message RegisterRequest {
   string login = 1;
   string password = 2;
+  string permission = 3;
 }
 
 message RegisterResponse {
