@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"log/slog"
 
 	"github.com/Sant1s/blogBack/internal/storage"
-	"github.com/jackc/pgx/v5"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 

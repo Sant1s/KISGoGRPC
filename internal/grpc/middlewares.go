@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	bloggrpc "github.com/Sant1s/blogBack/internal/grpc/blog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -114,16 +113,7 @@ func (l *Interceptors) AuthUnaryInterceptor(
 			return nil, ErrInvalidCredentials
 		}
 
-		passHash, err := bloggrpc.HashPassword(pass)
-		if err != nil {
-			l.l.Error(
-				"password hashing error",
-				slog.String("op", op),
-			)
-			return nil, ErrInternal
-		}
-
-		if err := l.auth.ValidateUser(dbCtx, nickname, passHash); err != nil {
+		if err := l.auth.ValidateUser(dbCtx, nickname, pass); err != nil {
 			l.l.Error(
 				fmt.Sprintf("can not validate user: %s", err.Error()),
 				slog.String("op", op),

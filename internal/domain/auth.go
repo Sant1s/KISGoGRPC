@@ -12,11 +12,10 @@ type LoginUserRequest struct {
 }
 
 type RegisterUserResponse struct {
-	Code   int64  `json:"code"`
-	Output string `json:"output"`
+	Id string `db:"id" json:"id"`
 }
 
 type LoginUserResponse struct {
-	Code   int64  `json:"code"`
-	Output string `json:"output"`
+	Id         string `db:"id" json:"id"`
+	Permission string `db:"permission" json:"permission"`
 }

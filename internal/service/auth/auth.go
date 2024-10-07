@@ -7,7 +7,6 @@ import (
 
 	"github.com/Sant1s/blogBack/internal/domain"
 	"github.com/Sant1s/blogBack/internal/storage"
-	"google.golang.org/grpc/codes"
 )
 
 var (
@@ -18,8 +17,8 @@ var (
 
 // Auth data-layer postgres
 type Auth interface {
-	Register(ctx context.Context, request *domain.RegisterUserRequest) error
-	Login(ctx context.Context, request *domain.LoginUserRequest) error
+	Register(ctx context.Context, request *domain.RegisterUserRequest) (*domain.RegisterUserResponse, error)
+	Login(ctx context.Context, request *domain.LoginUserRequest) (*domain.LoginUserResponse, error)
 }
 
 type Service struct {
@@ -42,7 +41,7 @@ func (s *Service) RegisterUser(
 	request *domain.RegisterUserRequest,
 ) (*domain.RegisterUserResponse, error) {
 
-	err := s.auth.Register(ctx, request)
+	resp, err := s.auth.Register(ctx, request)
 	if err != nil {
 		if errors.Is(err, storage.ErrAlreadyExists) {
 			return nil, ErrExists
@@ -52,8 +51,7 @@ func (s *Service) RegisterUser(
 	}
 
 	return &domain.RegisterUserResponse{
-		Code:   int64(codes.OK),
-		Output: "ok",
+		Id: resp.Id,
 	}, nil
 }
 
@@ -62,7 +60,7 @@ func (s *Service) LoginUser(
 	request *domain.LoginUserRequest,
 ) (*domain.LoginUserResponse, error) {
 
-	err := s.auth.Login(ctx, request)
+	resp, err := s.auth.Login(ctx, request)
 	if err != nil {
 		if errors.Is(err, storage.ErrDoesNotExists) {
 			return nil, ErrNotFound
@@ -72,7 +70,7 @@ func (s *Service) LoginUser(
 	}
 
 	return &domain.LoginUserResponse{
-		Code:   int64(codes.OK),
-		Output: "ok",
+		Id:         resp.Id,
+		Permission: resp.Permission,
 	}, nil
 }

@@ -27,8 +27,8 @@ type BlogPosts interface {
 
 type Auth interface {
 	ValidateUser(ctx context.Context, nickname, passwordHash string) error
-	Register(ctx context.Context, request *domain.RegisterUserRequest) error
-	Login(ctx context.Context, request *domain.LoginUserRequest) error
+	Register(ctx context.Context, request *domain.RegisterUserRequest) (*domain.RegisterUserResponse, error)
+	Login(ctx context.Context, request *domain.LoginUserRequest) (*domain.LoginUserResponse, error)
 }
 
 type Postgres struct {
@@ -66,19 +66,18 @@ func New(logger *slog.Logger, storagePath string) (*Postgres, error) {
 //		VALIDATE USER
 // ----------------------------
 
-const queryValidateUser = `SELECT id FROM users WHERE nickname=$1 AND password_hash=$2`
+const queryValidateUser = `SELECT id, password_hash FROM users WHERE nickname=$1;`
 
-func (p *Postgres) ValidateUser(ctx context.Context, nickname, passwordHash string) error {
+func (p *Postgres) ValidateUser(ctx context.Context, nickname, password string) error {
 	const op = "storage.postgres.ValidateUser"
 
 	p.logger.Info(fmt.Sprintf("executing query: %s", queryValidateUser), slog.String("op", op))
 
 	var id string
-	res := p.db.QueryRowContext(ctx, queryValidateUser, nickname, passwordHash)
+	var passHash string
+	res := p.db.QueryRowContext(ctx, queryValidateUser, nickname, password)
 
-	err := res.Scan(&id)
-
-	if err != nil {
+	if err := res.Scan(&id, &passHash); err != nil {
 		p.logger.Error(
 			"failed to execute query",
 			slog.String("query", queryValidateUser),
@@ -91,6 +90,18 @@ func (p *Postgres) ValidateUser(ctx context.Context, nickname, passwordHash stri
 		}
 		return fmt.Errorf("%w: %w", storage.ErrInternal, err)
 	}
+
+	// todo: resolve password hash problem
+	//if !bloggrpc.CheckPasswordHash(password, passHash) {
+	//	p.logger.Error(
+	//		"failed to execute query",
+	//		slog.String("query", queryValidateUser),
+	//		slog.String("op", op),
+	//		slog.Any("err", "error compare password"),
+	//	)
+	//
+	//	return fmt.Errorf("%w: %v", storage.ErrDoesNotExists, "user does not exists")
+	//}
 
 	return nil
 }
