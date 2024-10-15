@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -12,8 +14,12 @@ import (
 
 	"github.com/Sant1s/blogBack/internal/application"
 	"github.com/Sant1s/blogBack/internal/config"
+	blogService "github.com/Sant1s/blogBack/internal/gen"
 	metrics "github.com/Sant1s/blogBack/internal/metrics/prometeus"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -52,6 +58,11 @@ func main() {
 
 	go application.GRPCSrv.MustRun()
 
+	doneCh, err := runRest(cfg, logger)
+	if err != nil {
+		panic(err)
+	}
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
@@ -59,6 +70,10 @@ func main() {
 	logger.Info("stopping service", slog.String("signal", s.String()))
 
 	application.GRPCSrv.Stop()
+
+	logger.Info("stopping gateway service", slog.String("signal", s.String()))
+
+	doneCh <- struct{}{}
 
 	logger.Info("service stopped")
 }
@@ -121,4 +136,67 @@ func updateLogFile(logDir string) error {
 		currentLogFileName = currentDate
 	}
 	return nil
+}
+
+func runRest(cfg *config.Config, logger *slog.Logger) (chan struct{}, error) {
+	const op = "main.runRest"
+
+	doneChan := make(chan struct{})
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err := blogService.RegisterBlogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%d", cfg.Server.Port), opts)
+
+	if err != nil {
+		logger.Error(
+			"error register gateway server",
+			slog.String("op", op),
+			slog.Any("err", err),
+		)
+		return nil, errors.New("error register gateway server")
+	}
+
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", cfg.Gateway.Port),
+		Handler: mux,
+	}
+
+	go func() {
+		logger.Info(fmt.Sprintf("server listening at %d", cfg.Gateway.Port))
+		if err := server.ListenAndServe(); err != nil {
+			logger.Error(
+				"error register gateway server",
+				slog.String("op", op),
+				slog.Any("err", err),
+			)
+
+		}
+	}()
+
+	go func() {
+		select {
+		case <-doneChan:
+			ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+			defer cancel()
+
+			logger.Info(
+				"stoping gateway server",
+				slog.String("op", op),
+			)
+
+			if err := server.Shutdown(ctx); err != nil {
+				logger.Info(
+					"error stoping gateway server",
+					slog.String("op", op),
+					slog.Any("err", err),
+				)
+			}
+		}
+	}()
+
+	return doneChan, nil
 }

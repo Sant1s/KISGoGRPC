@@ -18,6 +18,11 @@ type Config struct {
 		LogDir string `yaml:"log_dir"`
 	} `yaml:"server"`
 
+	Gateway struct {
+		Host string `yaml:"host"`
+		Port int    `yaml:"port"`
+	} `yaml:"gateway"`
+
 	Database struct {
 		Postgres struct {
 			Host     string `yaml:"host"`

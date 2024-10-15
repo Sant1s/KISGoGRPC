@@ -12,9 +12,7 @@ message RegisterRequest {
   string permission = 3;
 }
 
-message RegisterResponse {
-  string id = 1;
-}
+message RegisterResponse { string id = 1; }
 
 message LoginRequest {
   string login = 1;
@@ -38,50 +36,45 @@ service BlogService {
 
   rpc CreatePost(CreatePostRequest) returns (Response) {
     option (google.api.http) = {
-      post : "/api/v1/post"
+      post : "/api/v1/posts"
       body : "*"
     };
   }
 
   rpc UpdatePost(UpdatePostRequest) returns (Response) {
     option (google.api.http) = {
-      patch : "/api/v1/post"
+      put : "/api/v1/posts/{id}"
       body : "*"
     };
   }
 
   rpc DeletePost(DeletePostRequest) returns (Response) {
     option (google.api.http) = {
-      delete : "/api/v1/post"
-      body : "*"
+      delete : "/api/v1/posts/{post_id}"
     };
   }
 
   rpc LikePost(LikePostRequest) returns (Response) {
     option (google.api.http) = {
-      post : "/api/v1/post/like"
-      body : "*"
+      put : "/api/v1/posts/{user_name}/likes/{post_id}"
     };
   }
 
   rpc RemoveLikePost(LikePostRequest) returns (Response) {
     option (google.api.http) = {
-      delete : "/api/v1/post/like"
-      body : "*"
+      delete : "/api/v1/posts/{user_name}/likes/{post_id}"
     };
   }
 
   rpc LikeComment(LikeCommentRequest) returns (Response) {
     option (google.api.http) = {
-      delete : "/api/v1/comments/like"
-      body : "*"
+      put : "/api/v1/comments/{user_name}/likes/{comment_id}"
     };
   }
 
   rpc RemoveLikeComment(LikeCommentRequest) returns (Response) {
     option (google.api.http) = {
-      delete : "/api/v1/comments/like"
-      body : "*"
+      delete : "/api/v1/comments/{user_name}/likes/{comment_id}"
     };
   }
 
@@ -93,22 +86,21 @@ service BlogService {
 
   rpc CreateComments(CreateCommentRequest) returns (Response) {
     option (google.api.http) = {
-      post : "/api/v1/post"
+      post : "/api/v1/comments"
       body : "*"
     };
   }
 
   rpc UpdateComments(UpdateCommentRequest) returns (Response) {
     option (google.api.http) = {
-      patch : "/api/v1/comments"
+      put : "/api/v1/comments/{comment_id}"
       body : "*"
     };
   }
 
   rpc DeleteComment(DeleteCommentRequest) returns (Response) {
     option (google.api.http) = {
-      delete : "/api/v1/comments"
-      body : "*"
+      delete : "/api/v1/comments/{post_id}/{comment_id}"
     };
   }
 }
