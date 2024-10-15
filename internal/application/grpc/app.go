@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"net"
 
+	middleware "github.com/Sant1s/blogBack/internal/grpc"
 	bloggrpc "github.com/Sant1s/blogBack/internal/grpc/blog"
-	"github.com/go-chi/chi/v5/middleware"
 	"google.golang.org/grpc"
 )
 
@@ -34,7 +34,7 @@ func New(
 	gRPCServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			middlewares.LoggingUnaryInterceptor,
-			middlewares.AuthUnaryInterceptor,
+			// middlewares.AuthUnaryInterceptor,
 		),
 	)
 

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package kis.blog.backend;
 
-import "googleapis/google/api/annotations.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/Sant1s/blogBack/blogService;blogService";
 
