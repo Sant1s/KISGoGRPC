@@ -1,0 +1,66 @@
+{"time":"2024-10-30T00:30:34.733542915+03:00","level":"INFO","msg":"postgres client init successfully","op":"storage.postgres.New"}
+{"time":"2024-10-30T00:30:34.734594736+03:00","level":"INFO","msg":"redis client created successfully","op":"redis.New"}
+{"time":"2024-10-30T00:30:34.734623775+03:00","level":"INFO","msg":"application successfully created","op":"application.New"}
+{"time":"2024-10-30T00:30:34.73480703+03:00","level":"INFO","msg":"server listening at 8001"}
+{"time":"2024-10-30T00:30:34.734835711+03:00","level":"INFO","msg":"gRPC server is running","op":"grpcapplication.run","port":"8000","addr":"[::]:8000"}
+{"time":"2024-10-30T00:30:34.73484236+03:00","level":"ERROR","msg":"error register gateway server","op":"main.runRest","err":"listen tcp :8001: bind: address already in use"}
+{"time":"2024-10-30T00:31:08.609042113+03:00","level":"INFO","msg":"stopping service","signal":"interrupt"}
+{"time":"2024-10-30T00:31:08.609120469+03:00","level":"INFO","msg":"stopping gRPC server","op":"grpcapplication.Stop","port":"8000"}
+{"time":"2024-10-30T00:31:08.609272858+03:00","level":"INFO","msg":"stopping gateway service","signal":"interrupt"}
+{"time":"2024-10-30T00:31:08.60930556+03:00","level":"INFO","msg":"service stopped"}
+{"time":"2024-10-30T00:34:03.05614067+03:00","level":"INFO","msg":"postgres client init successfully","op":"storage.postgres.New"}
+{"time":"2024-10-30T00:34:03.056982011+03:00","level":"INFO","msg":"redis client created successfully","op":"redis.New"}
+{"time":"2024-10-30T00:34:03.057007891+03:00","level":"INFO","msg":"application successfully created","op":"application.New"}
+{"time":"2024-10-30T00:34:03.05747946+03:00","level":"INFO","msg":"gRPC server is running","op":"grpcapplication.run","port":"8000","addr":"[::]:8000"}
+{"time":"2024-10-30T00:34:03.057669185+03:00","level":"INFO","msg":"server listening at 8001"}
+{"time":"2024-10-30T00:34:03.057707473+03:00","level":"ERROR","msg":"error register gateway server","op":"main.runRest","err":"listen tcp :8001: bind: address already in use"}
+{"time":"2024-10-30T00:34:13.352305744+03:00","level":"INFO","msg":"start executing handler","op":"middleware.LoggingUnaryInterceptor","handler":"/kis.blog.backend.BlogService/Register"}
+{"time":"2024-10-30T00:34:13.352384239+03:00","level":"INFO","msg":"executing query: SELECT id FROM users WHERE nickname=$1;","op":"postgres.getUserId"}
+{"time":"2024-10-30T00:34:13.353756315+03:00","level":"ERROR","msg":"failed to execute query: %s","query":"SELECT id FROM users WHERE nickname=$1;","op":"postgres.getUserId","err":"ERROR: relation \"users\" does not exist (SQLSTATE 42P01)"}
+{"time":"2024-10-30T00:34:13.353794364+03:00","level":"INFO","msg":"executing query: ","op":"postgres.Register","query":"\nINSERT INTO users(id,\n                  nickname,\n                  password_hash,\n                  created_at,\n                  permission)\nVALUES ($1, $2, $3, $4, 'user')\nRETURNING id;\n"}
+{"time":"2024-10-30T00:34:13.354197454+03:00","level":"ERROR","msg":"failed executing query","op":"postgres.Register","query":"\nINSERT INTO users(id,\n                  nickname,\n                  password_hash,\n                  created_at,\n                  permission)\nVALUES ($1, $2, $3, $4, 'user')\nRETURNING id;\n","err":"ERROR: relation \"users\" does not exist (SQLSTATE 42P01)"}
+{"time":"2024-10-30T00:34:13.354227531+03:00","level":"ERROR","msg":"executing failed with error","op":"bloggrpc.Register","err":"iternal server error"}
+{"time":"2024-10-30T00:34:13.354242703+03:00","level":"ERROR","msg":"executing handler ended with error","op":"middleware.LoggingUnaryInterceptor","handler":"/kis.blog.backend.BlogService/Register","err":"rpc error: code = InvalidArgument desc = internal server error","time":"1.879275ms"}
+{"time":"2024-10-30T00:34:47.199693021+03:00","level":"INFO","msg":"stopping service","signal":"interrupt"}
+{"time":"2024-10-30T00:34:47.199791353+03:00","level":"INFO","msg":"stopping gRPC server","op":"grpcapplication.Stop","port":"8000"}
+{"time":"2024-10-30T00:34:47.202071594+03:00","level":"INFO","msg":"stopping gateway service","signal":"interrupt"}
+{"time":"2024-10-30T00:34:47.202146002+03:00","level":"INFO","msg":"service stopped"}
+{"time":"2024-10-30T01:01:34.91492433+03:00","level":"INFO","msg":"postgres client init successfully","op":"storage.postgres.New"}
+{"time":"2024-10-30T01:01:34.916141689+03:00","level":"INFO","msg":"redis client created successfully","op":"redis.New"}
+{"time":"2024-10-30T01:01:34.916177452+03:00","level":"INFO","msg":"application successfully created","op":"application.New"}
+{"time":"2024-10-30T01:01:34.916516154+03:00","level":"INFO","msg":"server listening at 8001"}
+{"time":"2024-10-30T01:01:34.916699537+03:00","level":"INFO","msg":"gRPC server is running","op":"grpcapplication.run","port":"8000","addr":"[::]:8000"}
+{"time":"2024-10-30T01:01:34.916774074+03:00","level":"ERROR","msg":"error register gateway server","op":"main.runRest","err":"listen tcp :8001: bind: address already in use"}
+{"time":"2024-10-30T01:01:35.927671848+03:00","level":"INFO","msg":"start executing handler","op":"middleware.LoggingUnaryInterceptor","handler":"/kis.blog.backend.BlogService/Register"}
+{"time":"2024-10-30T01:01:35.92772539+03:00","level":"INFO","msg":"executing query: SELECT id FROM users WHERE nickname=$1;","op":"postgres.getUserId"}
+{"time":"2024-10-30T01:01:35.930815249+03:00","level":"ERROR","msg":"failed executing query: user already exists","op":"postgres.Register","query":"\nINSERT INTO users(id,\n                  nickname,\n                  password_hash,\n                  created_at,\n                  permission)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id;\n","err":"object already exists"}
+{"time":"2024-10-30T01:01:35.930864264+03:00","level":"ERROR","msg":"executing failed with error","op":"bloggrpc.Register","err":"object already exists"}
+{"time":"2024-10-30T01:01:35.930880795+03:00","level":"ERROR","msg":"executing handler ended with error","op":"middleware.LoggingUnaryInterceptor","handler":"/kis.blog.backend.BlogService/Register","err":"rpc error: code = AlreadyExists desc = object alredy exists","time":"3.163963ms"}
+{"time":"2024-10-30T01:01:39.235051744+03:00","level":"INFO","msg":"start executing handler","op":"middleware.LoggingUnaryInterceptor","handler":"/kis.blog.backend.BlogService/Register"}
+{"time":"2024-10-30T01:01:39.235124922+03:00","level":"INFO","msg":"executing query: SELECT id FROM users WHERE nickname=$1;","op":"postgres.getUserId"}
+{"time":"2024-10-30T01:01:39.236318372+03:00","level":"ERROR","msg":"failed to execute query: %s","query":"SELECT id FROM users WHERE nickname=$1;","op":"postgres.getUserId","err":"sql: no rows in result set"}
+{"time":"2024-10-30T01:01:39.236360141+03:00","level":"INFO","msg":"executing query: ","op":"postgres.Register","query":"\nINSERT INTO users(id,\n                  nickname,\n                  password_hash,\n                  created_at,\n                  permission)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id;\n"}
+{"time":"2024-10-30T01:01:39.238548679+03:00","level":"INFO","msg":"executing handler ended successfully","op":"middleware.LoggingUnaryInterceptor","handler":"/kis.blog.backend.BlogService/Register","time":"3.445661ms"}
+{"time":"2024-10-30T01:01:58.944780764+03:00","level":"INFO","msg":"stopping service","signal":"interrupt"}
+{"time":"2024-10-30T01:01:58.944862969+03:00","level":"INFO","msg":"stopping gRPC server","op":"grpcapplication.Stop","port":"8000"}
+{"time":"2024-10-30T01:01:58.946116808+03:00","level":"INFO","msg":"stopping gateway service","signal":"interrupt"}
+{"time":"2024-10-30T01:01:58.946153424+03:00","level":"INFO","msg":"service stopped"}
+{"time":"2024-10-30T01:09:17.801894783+03:00","level":"INFO","msg":"postgres client init successfully","op":"storage.postgres.New"}
+{"time":"2024-10-30T01:09:17.802891302+03:00","level":"INFO","msg":"redis client created successfully","op":"redis.New"}
+{"time":"2024-10-30T01:09:17.802919626+03:00","level":"INFO","msg":"application successfully created","op":"application.New"}
+{"time":"2024-10-30T01:09:17.803126652+03:00","level":"INFO","msg":"server listening at 8001"}
+{"time":"2024-10-30T01:09:17.803139692+03:00","level":"INFO","msg":"gRPC server is running","op":"grpcapplication.run","port":"8000","addr":"[::]:8000"}
+{"time":"2024-10-30T01:09:17.803162101+03:00","level":"ERROR","msg":"error register gateway server","op":"main.runRest","err":"listen tcp :8001: bind: address already in use"}
+{"time":"2024-10-30T01:12:35.586232645+03:00","level":"INFO","msg":"stopping service","signal":"interrupt"}
+{"time":"2024-10-30T01:12:35.586326964+03:00","level":"INFO","msg":"stopping gRPC server","op":"grpcapplication.Stop","port":"8000"}
+{"time":"2024-10-30T01:12:35.586446519+03:00","level":"INFO","msg":"stopping gateway service","signal":"interrupt"}
+{"time":"2024-10-30T01:12:35.586462453+03:00","level":"INFO","msg":"service stopped"}
+{"time":"2024-10-30T01:12:54.049602871+03:00","level":"INFO","msg":"postgres client init successfully","op":"storage.postgres.New"}
+{"time":"2024-10-30T01:12:54.050712369+03:00","level":"INFO","msg":"redis client created successfully","op":"redis.New"}
+{"time":"2024-10-30T01:12:54.050742015+03:00","level":"INFO","msg":"application successfully created","op":"application.New"}
+{"time":"2024-10-30T01:12:54.050955336+03:00","level":"INFO","msg":"server listening at 8007"}
+{"time":"2024-10-30T01:12:54.050984677+03:00","level":"INFO","msg":"gRPC server is running","op":"grpcapplication.run","port":"8000","addr":"[::]:8000"}
+{"time":"2024-10-30T01:15:47.374205491+03:00","level":"INFO","msg":"stopping service","signal":"interrupt"}
+{"time":"2024-10-30T01:15:47.374396929+03:00","level":"INFO","msg":"stopping gRPC server","op":"grpcapplication.Stop","port":"8000"}
+{"time":"2024-10-30T01:15:47.374523253+03:00","level":"INFO","msg":"stopping gateway service","signal":"interrupt"}
+{"time":"2024-10-30T01:15:47.374542448+03:00","level":"INFO","msg":"service stopped"}
