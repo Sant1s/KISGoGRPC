@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package kis.blog.backend;
 
-import "google/api/annotations.proto";
+import "googleapis/google/api/annotations.proto";
 
 option go_package = "github.com/Sant1s/blogBack/blogService;blogService";
 
@@ -25,8 +25,19 @@ message LoginResponse {
 }
 
 service BlogService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/register"
+      body : "*"
+    };
+  }
+
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post : "/api/v1/login"
+      body : "*"
+    };
+  }
 
   rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
     option (google.api.http) = {

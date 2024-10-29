@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"log/slog"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/Sant1s/blogBack/internal/domain"
 	"github.com/Sant1s/blogBack/internal/storage"
@@ -23,9 +24,9 @@ INSERT INTO users(id,
                   password_hash,
                   created_at,
                   permission)
-VALUES ($1, $2, $3, $4, 'user')
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
-`
+` // todo: Пока будет стоит только 'user'
 
 func (p *Postgres) Register(
 	ctx context.Context,
@@ -60,7 +61,7 @@ func (p *Postgres) Register(
 		request.Login,
 		request.PasswordHash,
 		time.Now(),
-		//request.Permission, // todo: Поправить работу с enum
+		request.Permission,
 	)
 
 	var uuid string

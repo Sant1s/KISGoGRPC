@@ -22,7 +22,6 @@ go.work
 go.work.sum
 
 # env file
-config.yaml
 .data_pgadmin
 .postgresql
 .redisdata

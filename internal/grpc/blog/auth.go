@@ -31,6 +31,7 @@ func (s *serverAPI) Register(ctx context.Context, request *blogService.RegisterR
 	response, err := s.auth.RegisterUser(reqCtx, &domain.RegisterUserRequest{
 		Login:        request.GetLogin(),
 		PasswordHash: request.Password, // todo: resolve password hash problem
+		Permission:   request.Permission,
 	})
 
 	if err != nil {
