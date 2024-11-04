@@ -3,7 +3,7 @@ version: "3"
 tasks:
   run-local:
     cmds:
-      - go run cmd/service/main.go --config_path=./config.yaml
+      - go run main.go --config_path=./config.yaml
 
   run-migrations:
     cmds:
@@ -21,11 +21,16 @@ tasks:
 
   generate:
     cmds:
-      - protoc -I proto proto/service.proto
+      - protoc
+        --proto_path ./proto/googleapis
+        --proto_path ./proto/grpc-gateway
+        --proto_path ./proto
         --go_out=./internal/gen/
         --go_opt=paths=source_relative
         --go-grpc_out=./internal/gen/
         --go-grpc_opt=paths=source_relative
         --grpc-gateway_out=./internal/gen/
+        --experimental_allow_proto3_optional
         --grpc-gateway_opt=paths=source_relative,allow_delete_body=true
-        --openapiv2_out=allow_merge=true,allow_delete_body=true,merge_file_name=api:./proto/api/
+        --openapiv2_out=allow_merge=true,allow_delete_body=true,merge_file_name=blogService:./proto/api/
+        service.proto swagger.proto

@@ -7,6 +7,7 @@ import (
 
 	"github.com/Sant1s/blogBack/internal/domain"
 	"github.com/Sant1s/blogBack/internal/storage"
+	"github.com/Sant1s/blogBack/internal/storage/postgres"
 )
 
 var (
@@ -15,20 +16,14 @@ var (
 	ErrExists   = errors.New("object already exists")
 )
 
-// Auth data-layer postgres
-type Auth interface {
-	Register(ctx context.Context, request *domain.RegisterUserRequest) (*domain.RegisterUserResponse, error)
-	Login(ctx context.Context, request *domain.LoginUserRequest) (*domain.LoginUserResponse, error)
-}
-
 type Service struct {
 	log  *slog.Logger
-	auth Auth
+	auth postgres.Auth
 }
 
 func New(
 	log *slog.Logger,
-	auth Auth,
+	auth postgres.Auth,
 ) *Service {
 	return &Service{
 		log:  log,

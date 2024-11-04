@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"embed"
+	_ "embed"
 	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -19,8 +22,13 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
+
+//go:embed proto/api/blogService.swagger.json
+var swaggerData []byte
+
+//go:embed swagger-ui
+var embededFs embed.FS
 
 var (
 	currentLogFile     *os.File
@@ -32,6 +40,7 @@ func init() {
 }
 
 func main() {
+
 	cfg := config.MustLoad()
 
 	logger, err := setupLogger(cfg)
@@ -148,21 +157,26 @@ func runRest(cfg *config.Config, logger *slog.Logger) (chan struct{}, error) {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := blogService.RegisterBlogServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%d", cfg.Server.Port), opts)
 
+	clientConn, err := grpc.NewClient(fmt.Sprintf("localhost:%d", cfg.Server.Port))
+	err = blogService.RegisterBlogServiceHandler(ctx, mux, clientConn)
+
+	fsSwagger, err := fs.Sub(embededFs, "swagger-ui")
 	if err != nil {
-		logger.Error(
-			"error register gateway server",
-			slog.String("op", op),
-			slog.Any("err", err),
-		)
-		return nil, errors.New("error register gateway server")
+		panic(err)
 	}
+
+	swaggerMux := http.NewServeMux()
+
+	swaggerMux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/", http.FileServer(http.FS(fsSwagger))))
+
+	swaggerMux.HandleFunc("/swagger-ui/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(swaggerData)
+	})
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Gateway.Port),
-		Handler: mux,
+		Handler: swaggerMux,
 	}
 
 	go func() {

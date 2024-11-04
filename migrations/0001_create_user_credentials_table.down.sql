@@ -1,1 +1,1 @@
-drop table if exists usersl
+drop table if exists users;

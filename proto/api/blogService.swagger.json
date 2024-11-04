@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "service.proto",
+    "title": "swagger.proto",
     "version": "version not set"
   },
   "tags": [
@@ -66,7 +66,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -98,7 +98,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -137,7 +137,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -175,7 +175,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -210,7 +210,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -233,6 +233,38 @@
             "required": true,
             "type": "string",
             "format": "int64"
+          }
+        ],
+        "tags": [
+          "BlogService"
+        ]
+      }
+    },
+    "/api/v1/login": {
+      "post": {
+        "operationId": "BlogService_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/backendLoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/backendLoginRequest"
+            }
           }
         ],
         "tags": [
@@ -283,7 +315,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -315,7 +347,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -354,7 +386,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -385,7 +417,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -420,7 +452,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/backendResponse"
+              "$ref": "#/definitions/blogbackendResponse"
             }
           },
           "default": {
@@ -443,6 +475,38 @@
             "required": true,
             "type": "string",
             "format": "int64"
+          }
+        ],
+        "tags": [
+          "BlogService"
+        ]
+      }
+    },
+    "/api/v1/register": {
+      "post": {
+        "operationId": "BlogService_Register",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/backendRegisterResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/backendRegisterRequest"
+            }
           }
         ],
         "tags": [
@@ -558,6 +622,17 @@
         }
       }
     },
+    "backendLoginRequest": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
     "backendLoginResponse": {
       "type": "object",
       "properties": {
@@ -599,6 +674,20 @@
         }
       }
     },
+    "backendRegisterRequest": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "permission": {
+          "type": "string"
+        }
+      }
+    },
     "backendRegisterResponse": {
       "type": "object",
       "properties": {
@@ -607,7 +696,7 @@
         }
       }
     },
-    "backendResponse": {
+    "blogbackendResponse": {
       "type": "object",
       "properties": {
         "id": {
@@ -647,5 +736,18 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "bearer": {
+      "type": "apiKey",
+      "description": "Authentication token, prefixed by Bearer: Bearer {token}",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "bearer": []
+    }
+  ]
 }
