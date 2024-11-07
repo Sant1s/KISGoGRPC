@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -19,8 +20,10 @@ type Config struct {
 	} `yaml:"server"`
 
 	Gateway struct {
-		Host string `yaml:"host" env:"GATEWAY_HOST" env-default:"localhost"`
-		Port int    `yaml:"port" env:"GATEWAY_PORT" env-default:"8001"`
+		Host            string `yaml:"host" env:"GATEWAY_HOST" env-default:"localhost"`
+		Port            int    `yaml:"port" env:"GATEWAY_PORT" env-default:"8001"`
+		GrpcGatewayHost string `yaml:"grpc_gateway_host" env:"GRPC_GATEWAY_HOST" env-default:"localhost"`
+		GrpcGatewayPort int    `yaml:"grpc_gateway_port" env:"GRPC_GATEWAY_PORT" env-default:"7070"`
 	} `yaml:"gateway"`
 
 	Database struct {
@@ -73,6 +76,8 @@ func fetchConfig() (*Config, error) {
 
 func getConfigPath() string {
 	path := os.Getenv("CONFIG_PATH")
+
+	fmt.Println(path)
 
 	if path == "" {
 		flag.StringVar(&path, "config_path", "", "Config path for application")

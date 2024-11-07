@@ -22,6 +22,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 //go:embed proto/api/blogService.swagger.json
@@ -67,13 +68,24 @@ func main() {
 
 	go application.GRPCSrv.MustRun()
 
-	doneCh, err := runRest(cfg, logger)
+	errCh := make(chan error)
+
+	go runGateway(cfg, logger, errCh)
+
+	doneCh, err := runSwagger(cfg, logger)
 	if err != nil {
 		panic(err)
 	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		select {
+		case <-errCh:
+			stop <- syscall.SIGABRT
+		}
+	}()
 
 	s := <-stop
 	logger.Info("stopping service", slog.String("signal", s.String()))
@@ -147,19 +159,31 @@ func updateLogFile(logDir string) error {
 	return nil
 }
 
-func runRest(cfg *config.Config, logger *slog.Logger) (chan struct{}, error) {
-	const op = "main.runRest"
-
-	doneChan := make(chan struct{})
+func runGateway(cfg *config.Config, logger *slog.Logger, errCh chan error) {
+	const op = "runGateway"
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
 	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err := blogService.RegisterBlogServiceHandlerFromEndpoint(ctx, mux,
+		fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port), opts)
+	if err != nil {
+		logger.Error("error register gateway", slog.String("op", op), slog.Any("err", err))
+		return
+	}
 
-	clientConn, err := grpc.NewClient(fmt.Sprintf("localhost:%d", cfg.Server.Port))
-	err = blogService.RegisterBlogServiceHandler(ctx, mux, clientConn)
+	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Gateway.GrpcGatewayHost, cfg.Gateway.GrpcGatewayPort), mux); err != nil {
+		logger.Error("error gateway", slog.String("op", op), slog.Any("err", err))
+		errCh <- err
+	}
+}
+
+func runSwagger(cfg *config.Config, logger *slog.Logger) (chan struct{}, error) {
+	const op = "main.runRest"
+
+	doneChan := make(chan struct{})
 
 	fsSwagger, err := fs.Sub(embededFs, "swagger-ui")
 	if err != nil {

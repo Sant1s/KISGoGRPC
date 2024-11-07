@@ -75,7 +75,7 @@ func (p *Postgres) ValidateUser(ctx context.Context, nickname, password string) 
 
 	var id string
 	var passHash string
-	res := p.db.QueryRowContext(ctx, queryValidateUser, nickname, password)
+	res := p.db.QueryRowContext(ctx, queryValidateUser, nickname)
 
 	if err := res.Scan(&id, &passHash); err != nil {
 		p.logger.Error(
@@ -102,6 +102,10 @@ func (p *Postgres) ValidateUser(ctx context.Context, nickname, password string) 
 	//
 	//	return fmt.Errorf("%w: %v", storage.ErrDoesNotExists, "user does not exists")
 	//}
+
+	if passHash != password {
+		return storage.ErrUnauthorized
+	}
 
 	return nil
 }

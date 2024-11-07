@@ -7,6 +7,8 @@ server:
 gateway:
   host: localhost
   port: 8007
+  grpc_gateway_host: localhost
+  grpc_gateway_port: 7071
 
 database:
   postgres:

@@ -26,5 +26,5 @@ go.work.sum
 .postgresql
 .redisdata
 .vscode
-.logs
+logs
 .idea
