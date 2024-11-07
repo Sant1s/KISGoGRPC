@@ -1,4 +1,5 @@
-version: '3.7'
+version: '3'
+
 services:
     postgresql:
         image: postgres:15-alpine
@@ -59,14 +60,16 @@ services:
       networks:
         - prometheus
 
-    # my-service:
-    #     container_name: service
-    #     build:
-    #         context: ./
-    #         dockerfile: Dockerfile
-    #     ports:
-    #         - "8000:8000"
-    #     restart: always
+    my-service:
+        container_name: service
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        ports:
+            - "8000:8000"
+            - "7071:7071"
+            - "8007:8007"
+        restart: unless-stopped
 
 
 networks:
