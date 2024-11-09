@@ -22,6 +22,7 @@ func main() {
 		dbAddres   string
 		dbName     string
 		sslMode    string
+		upOrdown   string
 	)
 	flag.StringVar(&path, "migrations_path", "", "Path for migrations")
 	flag.StringVar(&dbUser, "db_user", "", "User for migrations")
@@ -29,6 +30,7 @@ func main() {
 	flag.StringVar(&dbAddres, "db_addres", "", "Addres for migrations")
 	flag.StringVar(&dbName, "db_name", "", "Db name for migrations")
 	flag.StringVar(&sslMode, "ssl_mode", "", "Ssl mode for migrations")
+	flag.StringVar(&upOrdown, "grade", "", "upgrade or downgrade migration")
 
 	flag.Parse()
 
@@ -47,7 +49,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err = m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		log.Fatal(err)
+	if upOrdown == "upgrade" {
+		if err = m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+			log.Fatal(err)
+		}
+	} else if upOrdown == "downgrade" {
+		if err = m.Down(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+			log.Fatal(err)
+		}
+	} else {
+		log.Fatal("unknown grade")
 	}
 }

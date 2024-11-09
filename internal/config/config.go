@@ -19,6 +19,11 @@ type Config struct {
 		LogDir string `yaml:"log_dir" env:"LOG_DIR" env-default:"/opt/blog/logs"`
 	} `yaml:"server"`
 
+	Metrics struct {
+		Host string `yaml:"host" env:"METRICS_HOST" env-default:"localhost"`
+		Port int64  `yaml:"port" env:"METRICS_PORT" env-default:"12221"`
+	}
+
 	Gateway struct {
 		Host            string `yaml:"host" env:"GATEWAY_HOST" env-default:"localhost"`
 		Port            int    `yaml:"port" env:"GATEWAY_PORT" env-default:"8001"`

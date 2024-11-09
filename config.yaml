@@ -4,6 +4,10 @@ server:
   port: 8000
   log_dir: ./logs
 
+metrics:
+  host: localhost
+  port: 12221
+
 gateway:
   host: localhost
   port: 8007

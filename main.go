@@ -77,6 +77,8 @@ func main() {
 		panic(err)
 	}
 
+	doneMetrics := metrics.RunMetrics(cfg.Metrics.Host, cfg.Metrics.Port, errCh)
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
@@ -95,6 +97,7 @@ func main() {
 	logger.Info("stopping gateway service", slog.String("signal", s.String()))
 
 	doneCh <- struct{}{}
+	doneMetrics <- struct{}{}
 
 	logger.Info("service stopped")
 }
