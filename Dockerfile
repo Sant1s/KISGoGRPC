@@ -9,7 +9,6 @@ FROM ubuntu:latest
 
 WORKDIR /app
 COPY --from=builder /app/main /app/main
-COPY ./config.yaml /app/config.yaml
-ENV CONFIG_PATH=./config.yaml
+COPY . .
 
 CMD ["/app/main"]

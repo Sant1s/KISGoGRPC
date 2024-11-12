@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -81,8 +80,6 @@ func fetchConfig() (*Config, error) {
 
 func getConfigPath() string {
 	path := os.Getenv("CONFIG_PATH")
-
-	fmt.Println(path)
 
 	if path == "" {
 		flag.StringVar(&path, "config_path", "", "Config path for application")
