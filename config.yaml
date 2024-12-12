@@ -1,0 +1,29 @@
+server:
+  env: production
+  host: localhost
+  port: 8000
+  log_dir: ./logs
+
+metrics:
+  host: localhost
+  port: 12221
+
+gateway:
+  host: localhost
+  port: 8007
+  grpc_gateway_host: localhost
+  grpc_gateway_port: 7071
+
+database:
+  postgres:
+    host: postgresql
+    port: 5432
+    user: postgres
+    password: postgres
+    db: pg_db
+
+  redis:
+    host: redis
+    port: 6379
+    password: password
+    db_number: 0
